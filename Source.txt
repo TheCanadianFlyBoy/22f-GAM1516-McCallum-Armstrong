@@ -1,1 +1,8 @@
 My first commit
+
+Common git commands:
+git status - get git status
+git add NameOfFile - adds a file to next commit
+git commit -m"Message" - commits files locally
+git push - pushes files to server
+git pull - pulls files from server
