@@ -2,8 +2,5 @@
 
 
 #include "MABreakoutGameModeBase.h"
-
-void AMABreakoutGameModeBase::BeginPlay()
-{
-    Super::BeginPlay();
-}
+#include "EngineUtils.h" //Needed for TActorIterator
+#include "Kismet/GameplayStatics.h"

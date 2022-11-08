@@ -13,5 +13,7 @@ UCLASS()
 class MABREAKOUT_API APlayerPaddleController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+		virtual void BeginPlay() override;
+
 };

@@ -9,7 +9,7 @@
 ABoard::ABoard()
 {
 
-	float boardWidth = 500, boardHeight = 1000;
+	float boardWidth = 500, boardHeight = 500;
 	float borderWidth = 10;
 	//ROOT
 	BoardRoot = CreateDefaultSubobject<UBoxComponent>("SceneRoot");
@@ -48,7 +48,7 @@ ABoard::ABoard()
 	//CAMERA
 	BoardCamera = CreateDefaultSubobject<UCameraComponent>("BoardCamera");
 	BoardCamera->SetProjectionMode(ECameraProjectionMode::Orthographic);
-	BoardCamera->SetOrthoWidth(boardWidth*2 + 2 * borderWidth);
+	BoardCamera->SetOrthoWidth(5000.0f);
 	BoardCamera->SetAspectRatio(boardWidth / boardHeight); //TODO: figure out aspect ratio
 	BoardCamera->SetupAttachment(BoardRoot);
 	BoardCamera->AddLocalRotation(FRotator(0, -90, 0));
