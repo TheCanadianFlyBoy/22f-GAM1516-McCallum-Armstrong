@@ -3,3 +3,15 @@
 
 #include "BreakoutGameState.h"
 
+ABreakoutGameState::ABreakoutGameState()
+{
+}
+
+int ABreakoutGameState::GetScore()
+{
+	return 0;
+}
+
+void ABreakoutGameState::DefeatPlayer()
+{
+}

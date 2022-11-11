@@ -26,11 +26,13 @@ public:
 		class UBoxComponent* BoxComponent;
 	//Sprite
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sprite")
-		class UPaperSpriteComponent* PaddleSprite;
+		class UPaperSpriteComponent* PawnSpriteComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Paddle")
+		float Speed;
 
 protected: //Variables
 	float MovementRight;
-	float MoveRight();
 
 
 protected:
@@ -44,4 +46,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//Movement functionality
+	void MoveRight(float value);
+
+private:
+	UFUNCTION()
+		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

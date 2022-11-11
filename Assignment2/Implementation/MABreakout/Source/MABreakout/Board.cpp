@@ -21,7 +21,7 @@ ABoard::ABoard()
 	//Bottom Trigger Zone
 	UBoxComponent* bottom = CreateDefaultSubobject<UBoxComponent>("BoardBottom");
 	bottom->SetupAttachment(BoardRoot);
-	bottom->SetBoxExtent(FVector(boardWidth, 10, borderWidth));
+	bottom->SetBoxExtent(FVector(boardWidth, 50, borderWidth));
 	bottom->SetSimulatePhysics(false);
 	bottom->SetCollisionProfileName("OverlapAllDynamic");
 	bottom->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -31,17 +31,20 @@ ABoard::ABoard()
 	bottom->OnComponentEndOverlap.AddDynamic(this, &ABoard::EndOverlap);
 	//Sides - LEFT //TODO REFACTOR TO FUNCTION?
 	UBoxComponent* left = CreateDefaultSubobject<UBoxComponent>("BoardLeft");
-	left->SetBoxExtent(FVector(borderWidth, 10, boardHeight));
+	left->SetBoxExtent(FVector(borderWidth, 50, boardHeight));
+	left->SetSimulatePhysics(true);
+	left->SetEnableGravity(false);
+	left->SetCollisionProfileName("BlockAllDynamic");
 	left->SetupAttachment(BoardRoot);
 	left->AddLocalOffset(FVector(-(boardWidth + borderWidth), 0, 0));
 	//Sides - RIGHT
 	UBoxComponent* right = CreateDefaultSubobject<UBoxComponent>("BoardRight");
-	right->SetBoxExtent(FVector(borderWidth, 10, boardHeight));
+	right->SetBoxExtent(FVector(borderWidth, 50, boardHeight));
 	right->SetupAttachment(BoardRoot);
 	right->AddLocalOffset(FVector((boardWidth + borderWidth), 0, 0));
 	//SIDES TOP
 	UBoxComponent* top = CreateDefaultSubobject<UBoxComponent>("BoardTop");
-	top->SetBoxExtent(FVector(boardWidth, 10, borderWidth));
+	top->SetBoxExtent(FVector(boardWidth, 50, borderWidth));
 	top->SetupAttachment(BoardRoot);
 	top->AddLocalOffset(FVector(0, 0, boardHeight + borderWidth));
 

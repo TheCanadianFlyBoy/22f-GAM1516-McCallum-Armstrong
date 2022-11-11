@@ -13,5 +13,15 @@ UCLASS()
 class MABREAKOUT_API ABreakoutGameState : public AGameStateBase
 {
 	GENERATED_BODY()
+
+	public:
+		//Constructor
+		ABreakoutGameState();
+
+		int GetScore();
+		void DefeatPlayer();
+
+		float totalScore;
+		bool bDefeat;
 	
 };

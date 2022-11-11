@@ -13,8 +13,5 @@ UCLASS()
 class MABREAKOUT_API AMABreakoutGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
-protected:
-
 
 };

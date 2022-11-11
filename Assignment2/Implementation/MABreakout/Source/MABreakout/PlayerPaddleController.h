@@ -13,7 +13,23 @@ UCLASS()
 class MABREAKOUT_API APlayerPaddleController : public APlayerController
 {
 	GENERATED_BODY()
+public:
+	//Begin Play Override - set camera
+	virtual void BeginPlay() override;
 
-		virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* aPawn) override;
+	virtual void OnUnPossess() override;
+
+protected:
+	//Setup
+	virtual void SetupInputComponent() override;
+
+	virtual void AcknowledgePossession(APawn* PossesedPawn) override;
+
+
+	//Movement for axis
+	void MoveRight(float _value);
+
+	class APaddlePawn* MyPawn;
 
 };

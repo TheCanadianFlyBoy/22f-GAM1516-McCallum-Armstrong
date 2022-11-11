@@ -15,12 +15,34 @@ public:
 	// Sets default values for this actor's properties
 	ABrick();
 
+	// Scene Root
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Scene Root")
+		class USceneComponent* SceneComponent;
+	// Collision Box
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision Box")
+		class UBoxComponent* BoxComponent;
+	// Paper Sprite
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sprite")
+		class UPaperSpriteComponent* BrickSprite;
+	//Health Points
+	UPROPERTY(VisibleAnywhere, Category = "Brick")
+		float HealthPoints;
+	// Chance of Powerup Drop
+	UPROPERTY(VisibleAnywhere, Category = "Brick")
+		float PowerupChance;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	//On hit
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	//Roll for powerup on destruction
+	void RollForPowerup();
 
 };

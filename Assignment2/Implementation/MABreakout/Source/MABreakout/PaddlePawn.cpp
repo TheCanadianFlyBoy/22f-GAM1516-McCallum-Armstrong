@@ -2,12 +2,42 @@
 
 
 #include "PaddlePawn.h"
+#include "PaperSpriteComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 APaddlePawn::APaddlePawn()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	PaddleLength = 100;
+	Speed = 1.0f;
+
+	//root
+	//SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneRoot");
+
+	//Collision Box
+	BoxComponent = CreateDefaultSubobject<UBoxComponent>("CollisionBox");
+	BoxComponent->SetBoxExtent(FVector(PaddleLength, 50, 50));
+	BoxComponent->SetSimulatePhysics(true);
+	BoxComponent->SetEnableGravity(false);
+	BoxComponent->SetCollisionProfileName("BlockAllDynamic");
+	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//Collision Locks
+	BoxComponent->GetBodyInstance()->bLockRotation = true;
+	BoxComponent->GetBodyInstance()->bLockYTranslation = true;
+	BoxComponent->GetBodyInstance()->bLockZTranslation = true;
+	SetRootComponent(BoxComponent);
+
+	//Sprite
+	PawnSpriteComponent = CreateDefaultSubobject<UPaperSpriteComponent>("PaddleSprite");
+	PawnSpriteComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//PawnSpriteComponent->SetupAttachment(RootComponent);
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 
 }
 
@@ -23,6 +53,18 @@ void APaddlePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FVector NewLocation = GetActorLocation();
+	//IF MovementForward NOT EQUAL to 0
+	if (MovementRight != 0)
+	{
+		//ASSIGN NewLocation to the the sum of the Actors Current Location and the product of the Actors Forward Vector and the MovementForward value i.e GetActorLocation() + (GetActorForwardVector() * MovementForward)
+		NewLocation = GetActorLocation() + (GetActorForwardVector() * MovementRight * Speed);
+	}
+
+	//CALL SetActorLocation() passing in NewLocation
+	SetActorLocation(NewLocation);
+
+
 }
 
 // Called to bind functionality to input
@@ -30,5 +72,21 @@ void APaddlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void APaddlePawn::MoveRight(float value)
+{
+	MovementRight = value;
+}
+
+void APaddlePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (OtherActor && OtherActor != this)
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, FString::Printf(TEXT("%s has Hit"), *OtherActor->GetName()));
+		}
+	}
 }
 
