@@ -18,10 +18,15 @@ class MABREAKOUT_API ABreakoutGameState : public AGameStateBase
 		//Constructor
 		ABreakoutGameState();
 
-		int GetScore();
-		void DefeatPlayer();
+		UFUNCTION(BlueprintCallable)
+			int GetScore();
+		UFUNCTION(BlueprintCallable)
+			int GetLives();
+		UFUNCTION(BlueprintCallable)
+			void DefeatPlayer();
 
 		float totalScore;
 		bool bDefeat;
+		int lives;
 	
 };

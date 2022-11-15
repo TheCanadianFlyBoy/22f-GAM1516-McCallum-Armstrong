@@ -15,5 +15,5 @@ class MABREAKOUT_API ABreakoutGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 	virtual void BeginPlay() override;
-	
+
 };

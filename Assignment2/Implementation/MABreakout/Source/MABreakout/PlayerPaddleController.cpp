@@ -17,6 +17,8 @@ void APlayerPaddleController::BeginPlay()
         //Nullptr check
         if (ActorItr->BoardCamera)
         {
+            MyBoard = *ActorItr;
+            InputComponent->BindAction("Launch", EInputEvent::IE_Released, MyBoard, &ABoard::SpawnBall);
             SetViewTarget(*ActorItr);
         }
     }
@@ -27,7 +29,7 @@ void APlayerPaddleController::OnPossess(APawn* aPawn)
 {
     MyPawn = Cast<APaddlePawn>(aPawn);
     GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, "AMyPlayerController::Possess: - " + aPawn->GetName());
-    InputComponent->BindAxis("MoveRight", MyPawn, &APaddlePawn::MoveRight);
+    InputComponent->BindAxis("MoveRight", MyPawn, &APaddlePawn::MoveRight);  
 
 }
 
@@ -44,14 +46,6 @@ void APlayerPaddleController::SetupInputComponent()
 {
     Super::SetupInputComponent();
 
-   // MyPlayerState = Cast<AUEPlayerState>(PlayerState);
-   // if (MyPlayerState)
-   // {
-   //     UE_LOG(LogTemp, Warning, TEXT("Found class %s"), TEXT("AMyPlayerController::BeginPlay: MyPlayerState Set"));
-   // }
-    if (InputComponent != nullptr)
-    {
-    }
 }
 
 void APlayerPaddleController::AcknowledgePossession(APawn* PossesedPawn)

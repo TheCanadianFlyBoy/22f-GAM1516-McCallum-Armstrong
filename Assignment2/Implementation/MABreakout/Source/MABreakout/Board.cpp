@@ -3,10 +3,14 @@
 
 #include "Board.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
 #include "PaddlePawn.h"
 #include "Brick.h"
-#include "Components/BoxComponent.h"
+#include "Ball.h"
+#include "BreakoutGameMode.h"
+#include "BreakoutGameState.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include "EngineUtils.h" //Needed for TActorIterator
 
 void MakeSideSolid(UBoxComponent* _side) {
 
@@ -31,14 +35,20 @@ void MakeSideSolid(UBoxComponent* _side) {
 // Sets default values
 ABoard::ABoard()
 {
+	//Set tag
+	Tags.Add("Board");
 
+	//Initialize private variables
 	boardWidth = 500; 
 	boardHeight = 500;
 	borderWidth = 50;
+
+	bLaunched = false;
+	BallCount = 0;
+
 	//ROOT
 	BoardRoot = CreateDefaultSubobject<USceneComponent>("SceneRoot");
 	RootComponent = BoardRoot;
-
 
 
 	//BOX COLLISION
@@ -47,13 +57,10 @@ ABoard::ABoard()
 	bottom->SetupAttachment(BoardRoot);
 	bottom->SetBoxExtent(FVector(boardWidth, 50, borderWidth));
 	bottom->AddLocalOffset(FVector(0, 0, -(boardHeight + borderWidth)));
+	//TODO REFACTOR
 	MakeSideSolid(bottom);
-//bottom->SetSimulatePhysics(false);
-//bottom->SetCollisionProfileName("OverlapAllDynamic");
-//bottom->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//Add dynamics
-	//bottom->OnComponentBeginOverlap.AddDynamic(this, &ABoard::BeginOverlap);
-	//bottom->OnComponentEndOverlap.AddDynamic(this, &ABoard::EndOverlap);
+	SideBottom = bottom;
+
 	//Sides - LEFT //TODO REFACTOR TO FUNCTION?
 	UBoxComponent* left = CreateDefaultSubobject<UBoxComponent>("BoardLeft");
 	left->SetBoxExtent(FVector(borderWidth, 50, boardHeight));
@@ -85,16 +92,18 @@ ABoard::ABoard()
 	BoardCamera->AddLocalOffset(FVector(-500, 0, 0));
 	BoardCamera->bUsePawnControlRotation = false;
 
+	//Add to colliders
 	BoxColliders.Add(top);
 	BoxColliders.Add(bottom);
 	BoxColliders.Add(left);
 	BoxColliders.Add(right);
 
+	//Create ball
+
+
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
-	//GenerateBoard();
 }
 
 
@@ -111,8 +120,45 @@ void ABoard::SpawnPowerup(ABrick* _brick)
 {
 }
 
-void ABoard::SpawnBall(APaddlePawn* _paddle)
+void ABoard::SpawnBall()
 {
+	//NULL CATCH
+	if (BallTemplate && PlayerPaddle && !bLaunched) {
+
+		//Create spawn location
+		FVector PaddleLocation = PlayerPaddle->GetActorLocation();
+		FVector BallSpawnLocation = PaddleLocation + FVector(0, 0, 30);
+
+		//Spawn parameters
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		//Angle
+		float arc = 70.0f;
+		float angle = FMath::RandRange(90 - arc, 90 + arc);
+		FRotator BallSpawnRotation = FRotator(angle, 0, 0);
+
+		//Generate transform
+		FTransform BallSpawnTransform = FTransform(BallSpawnRotation, BallSpawnLocation, FVector::OneVector);
+		//Spawn
+		ABall* _ball = GetWorld()->SpawnActor<ABall>(BallTemplate, BallSpawnTransform, SpawnParams);
+
+		//Add to ball list
+		Balls.Add(_ball);
+		BallCount++;
+
+		//Set launched to true
+		bLaunched = true;
+
+	}
+
+
+}
+
+UPrimitiveComponent* ABoard::GetBottom()
+{
+	return SideBottom;
 }
 
 // Called when the game starts or when spawned
@@ -120,7 +166,26 @@ void ABoard::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
+	//Find paddle
+	PlayerPaddle = nullptr;
+	if (GetWorld()) {
+		for (TActorIterator<APaddlePawn> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			//Nullptr check
+			if (ActorItr)
+			{
+				//Set paddle
+				PlayerPaddle = *ActorItr;
+				PlayerPaddle->SetOwner(this);
+			}
+		}
+	}
+
+	//Generate board
 	GenerateBoard();
+	//Spawn initial ball
+	SpawnBall();
 
 }
 
@@ -133,12 +198,28 @@ void ABoard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Check if there are balls TODO: refactor to hit event
+	if (BallCount <= 0)
+	{
+		//Get Game mode/state
+		ABreakoutGameMode* GameMode = Cast<ABreakoutGameMode>(GetWorld()->GetAuthGameMode());
+		ABreakoutGameState* GameState =  GameMode->GetGameState<ABreakoutGameState>();
+		//Check lives
+		if (GameState->GetLives() > 0 && bLaunched)
+		{
+			//Return launch control and decrement lives
+			bLaunched = false;
+			GameState->lives--;
+		}
+	}
+
 }
 
 void ABoard::GenerateBoard()
 {
+
 	//Generic brick count
-	int brick_count = 5;
+	int brick_count = 25;
 	//Dimensions
 	float spawn_width = boardWidth*2 - 2 * borderWidth;
 	float spawn_height = boardHeight / 2 - borderWidth;
@@ -151,7 +232,6 @@ void ABoard::GenerateBoard()
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	FTransform SpawnTransform = FTransform(GetActorLocation() - FVector(-boardWidth + borderWidth, 0, z_offset));
 	
 	//Brick Template catch
 	if (BrickTemplate != nullptr) {
@@ -170,7 +250,7 @@ void ABoard::GenerateBoard()
 				float x_offset = (boardWidth*2/ ((float) row_number + 1));
 				//Set new spawn transform
 				FVector SpawnVector = GetActorLocation() - FVector(boardWidth,0,0) + FVector(x_offset * (i + 1), 0, z_offset);
-				SpawnTransform = FTransform(SpawnVector);
+				FTransform SpawnTransform = FTransform(SpawnVector);
 				//Create new brick
 				ABrick* _brick = World->SpawnActor<ABrick>(BrickTemplate, SpawnTransform, SpawnParams);
 				if (_brick)

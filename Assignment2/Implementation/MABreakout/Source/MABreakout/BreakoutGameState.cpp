@@ -5,13 +5,22 @@
 
 ABreakoutGameState::ABreakoutGameState()
 {
+	lives = 3;
+	totalScore = 0;
+	bDefeat = false;
 }
 
 int ABreakoutGameState::GetScore()
 {
-	return 0;
+	return totalScore;
+}
+
+int ABreakoutGameState::GetLives()
+{
+	return lives;
 }
 
 void ABreakoutGameState::DefeatPlayer()
 {
+	bDefeat = true;
 }

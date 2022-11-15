@@ -31,5 +31,6 @@ protected:
 	void MoveRight(float _value);
 
 	class APaddlePawn* MyPawn;
+	class ABoard* MyBoard;
 
 };

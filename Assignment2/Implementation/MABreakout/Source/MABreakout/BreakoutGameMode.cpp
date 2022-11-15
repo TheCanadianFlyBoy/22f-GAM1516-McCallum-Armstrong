@@ -5,6 +5,7 @@
 #include "EngineUtils.h" //Needed for TActorIterator
 #include "Kismet/GameplayStatics.h"
 
+
 void ABreakoutGameMode::BeginPlay()
 {
     //FOR TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr
@@ -13,7 +14,7 @@ void ABreakoutGameMode::BeginPlay()
         //CALL AddOnScreenDebugMessage() on GEngine passing in: -1, 15.0f, FColor::Green, "Actor: " + ActorItr->GetName()
         GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "Actor: " + ActorItr->GetName());
     }
-    //ENDFOR
+
 
    //DECLARE a FString variable called command and assign it to "show collision"
     FString command = "show collision";

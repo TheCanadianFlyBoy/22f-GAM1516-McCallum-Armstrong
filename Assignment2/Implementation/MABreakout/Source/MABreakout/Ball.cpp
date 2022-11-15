@@ -3,6 +3,8 @@
 
 #include "Ball.h"
 #include "PaperSpriteComponent.h"
+#include "PaddlePawn.h"
+#include "Board.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -59,25 +61,38 @@ void ABall::BeginPlay()
 
 void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+
+	//TODO: error catching
+	ABoard* Board = Cast<ABoard>(GetOwner());
+
 	//Reflection vector calculation?
 	if (!Hit.bStartPenetrating && OtherComp != LastHit) {
-		if (OtherActor->ActorHasTag("EEE"))
+		if (OtherActor->ActorHasTag("Paddle"))
 		{
 			//TODO: paddle math
-			//Direction change
-			FRotator Direction = GetActorRotation();
-			FVector IncidentVector = Direction.Vector();
-			FVector NormalVector = NormalImpulse.GetSafeNormal();
-			float IncidentDotImpulse = IncidentVector | NormalVector;
+			FVector PaddleLocation = OtherActor->GetActorLocation();
+			APaddlePawn* Paddle = Cast<APaddlePawn>(OtherActor);
 
-			FVector x = 2.0f * ((IncidentVector | NormalVector) * NormalVector);
+			float DeltaX = (GetActorLocation().X - PaddleLocation.X);
 
-			FVector NewVelocity = IncidentVector - 2.0f * ((IncidentVector | NormalVector) * NormalVector);
-			FRotator NewDirection = NewVelocity.Rotation();
+			//Get angle
+			float angle = 90 - (DeltaX/Paddle->PaddleLength * 80);
+			FRotator NewDirection = FRotator(angle, 0, 0);
 
-			SetActorRotation(NewDirection);
+			//Displacement
+			//FVector internalDisplacement = Hit.TraceEnd - Hit.ImpactPoint;
+			float distance = Hit.PenetrationDepth;
+			FVector displacement = NewDirection.Vector() * distance;
+
+			//Move ball
+			SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * 10 + displacement, false, nullptr, ETeleportType::ResetPhysics);
+			SetActorRotation(NewDirection, ETeleportType::ResetPhysics);
 		}
-		else {
+		else if (OtherComp == Board->GetBottom())
+		{
+			Board->BallCount--;
+			this->Destroy();
+		} else {
 			//Direction change
 			//Get current direction
 			FRotator Direction = GetActorRotation();

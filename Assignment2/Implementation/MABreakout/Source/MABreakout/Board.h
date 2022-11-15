@@ -14,33 +14,42 @@ class MABREAKOUT_API ABoard : public AActor
 public:	
 	//Enum for sides
 	enum class BoardSide {
-		Bottom = 0,
-		Left = 1,
-		Top = 2,
-		Right = 3
+		Left,
+		Right,
+		Top,
+		Bottom
 	};
+
 
 	// Sets default values for this actor's properties
 	ABoard();
 
 public: //UPROPERTIES
 	
+	//BOARD PROPERTIES
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "SceneRoot")
 		class USceneComponent* BoardRoot;
-	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Bricks")
-		TArray<class ABrick*> Bricks;
-
-	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Bounding")
+	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Board")
 		TArray<class UBoxComponent*> BoxColliders;
-
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Camera")
 		class UCameraComponent* BoardCamera;
 
-	UPROPERTY(VisibleAnywhere, Category = "Paddle")
-		class APaddlePawn* PlayerPaddle;
+	int BallCount;
 
+
+	//Pointers
+	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Board")
+		TArray<class ABrick*> Bricks;
+	UPROPERTY(VisibleAnywhere, Category = "Board")
+		class APaddlePawn* PlayerPaddle;
+	UPROPERTY(VisibleAnywhere, Category = "Board")
+		TArray<class ABall*> Balls;
+
+	//Templates
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<ABrick> BrickTemplate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config", meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<ABall> BallTemplate;
 
 	UFUNCTION()
 		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -48,10 +57,13 @@ public: //UPROPERTIES
 	UFUNCTION()
 		void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+
 	UFUNCTION()
 		void SpawnPowerup(ABrick* _brick);
 	UFUNCTION()
-		void SpawnBall(APaddlePawn* _paddle);
+		void SpawnBall();
+	UFUNCTION()
+		UPrimitiveComponent* GetBottom();
 
 protected:
 	// Called when the game starts or when spawned
@@ -67,6 +79,10 @@ public:
 	void GenerateBoard();
 
 private:
+
+	UBoxComponent* SideBottom;
+
+	bool bLaunched;
 
 	float boardWidth;
 	float boardHeight;
