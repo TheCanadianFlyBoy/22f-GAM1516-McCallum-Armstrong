@@ -15,15 +15,12 @@ public:
 	// Sets default values for this actor's properties
 	ABrick();
 
-	// Scene Root
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Scene Root")
-		class USceneComponent* SceneComponent;
 	// Collision Box
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision Box")
 		class UBoxComponent* BoxComponent;
 	// Paper Sprite
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sprite")
-		class UPaperSpriteComponent* BrickSprite;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sprite")
+	//	class UPaperSpriteComponent* BrickSprite;
 	//Health Points
 	UPROPERTY(VisibleAnywhere, Category = "Brick")
 		float HealthPoints;
@@ -36,7 +33,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	//On hit
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UFUNCTION()
+		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
 	// Called every frame

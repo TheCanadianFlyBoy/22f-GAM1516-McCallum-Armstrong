@@ -23,10 +23,10 @@ public:
 	// Sets default values for this actor's properties
 	ABoard();
 
-public: // members
+public: //UPROPERTIES
 	
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "SceneRoot")
-		class UBoxComponent* BoardRoot;
+		class USceneComponent* BoardRoot;
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Bricks")
 		TArray<class ABrick*> Bricks;
 
@@ -38,6 +38,9 @@ public: // members
 
 	UPROPERTY(VisibleAnywhere, Category = "Paddle")
 		class APaddlePawn* PlayerPaddle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config", meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<ABrick> BrickTemplate;
 
 	UFUNCTION()
 		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -61,6 +64,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void GenerateBoard();
 
+private:
+
+	float boardWidth;
+	float boardHeight;
+	float borderWidth;
 
 };

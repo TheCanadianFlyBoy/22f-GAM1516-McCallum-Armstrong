@@ -15,23 +15,29 @@ public:
 	// Sets default values for this actor's properties
 	ABall();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Scene Root")
-		class USceneComponent* SceneComponent;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision Sphere")
 		class USphereComponent* SphereComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Scene Root")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Breaker Ball")
 		class UPaperSpriteComponent* BallSprite;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Breaker Ball")
+		class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category  = "Breaker Ball")
+		float Speed;
+
+	UPROPERTY(EditAnywhere, Category = "Breaker Ball")
+		float MaxSpeed;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	float speed;
-	float maxSpeed;
+	bool bMoving;
 
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UPrimitiveComponent* LastHit;
+
 
 public:	
 	// Called every frame
@@ -42,5 +48,16 @@ public:
 
 	//Launch ball
 	void Launch();
+
+private:
+
+	UFUNCTION()
+		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 };

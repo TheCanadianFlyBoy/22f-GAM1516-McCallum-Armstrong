@@ -16,8 +16,8 @@ public:
 	APaddlePawn();
 
 	//Root
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		class USceneComponent* SceneComponent;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		//class USceneComponent* SceneComponent;
 	//Paddle length
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Paddle")
 		float PaddleLength;
@@ -31,8 +31,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Paddle")
 		float Speed;
 
-protected: //Variables
 	float MovementRight;
+
+protected: //Variables
 
 
 protected:

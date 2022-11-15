@@ -12,22 +12,25 @@ APaddlePawn::APaddlePawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	PaddleLength = 100;
-	Speed = 1.0f;
+	Speed = 300.0f;
 
-	//root
-	//SceneComponent = CreateDefaultSubobject<USceneComponent>("SceneRoot");
+	Tags.Add("Paddle"); //Add lookup tag
 
 	//Collision Box
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("CollisionBox");
-	BoxComponent->SetBoxExtent(FVector(PaddleLength, 50, 50));
+	BoxComponent->SetBoxExtent(FVector(PaddleLength, 50, 10));
 	BoxComponent->SetSimulatePhysics(true);
 	BoxComponent->SetEnableGravity(false);
 	BoxComponent->SetCollisionProfileName("BlockAllDynamic");
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	//Collision Locks
 	BoxComponent->GetBodyInstance()->bLockRotation = true;
+	BoxComponent->GetBodyInstance()->bLockXRotation = true;
+	BoxComponent->GetBodyInstance()->bLockYRotation = true;
+	BoxComponent->GetBodyInstance()->bLockZRotation = true;
 	BoxComponent->GetBodyInstance()->bLockYTranslation = true;
 	BoxComponent->GetBodyInstance()->bLockZTranslation = true;
+	//BoxComponent->GetBodyInstance()->bLockXTranslation = true;
 	SetRootComponent(BoxComponent);
 
 	//Sprite
@@ -58,11 +61,15 @@ void APaddlePawn::Tick(float DeltaTime)
 	if (MovementRight != 0)
 	{
 		//ASSIGN NewLocation to the the sum of the Actors Current Location and the product of the Actors Forward Vector and the MovementForward value i.e GetActorLocation() + (GetActorForwardVector() * MovementForward)
-		NewLocation = GetActorLocation() + (GetActorForwardVector() * MovementRight * Speed);
+		NewLocation = GetActorLocation() + (GetActorForwardVector() * MovementRight * Speed * DeltaTime);
+	}
+	else {
+		BoxComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
 	}
 
+
 	//CALL SetActorLocation() passing in NewLocation
-	SetActorLocation(NewLocation);
+	SetActorLocation(NewLocation, true, (FHitResult*) nullptr, ETeleportType::ResetPhysics);
 
 
 }
