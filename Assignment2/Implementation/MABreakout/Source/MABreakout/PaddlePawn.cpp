@@ -11,7 +11,9 @@ APaddlePawn::APaddlePawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	PaddleLength = 100;
+	PaddleLength = 100.f;
+	PaddleMax = 200.f;
+
 	Speed = 300.0f;
 
 	Tags.Add("Paddle"); //Add lookup tag

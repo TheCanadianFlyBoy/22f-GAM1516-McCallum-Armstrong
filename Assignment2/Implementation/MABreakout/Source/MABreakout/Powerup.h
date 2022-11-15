@@ -10,17 +10,38 @@ UCLASS()
 class MABREAKOUT_API APowerup : public AActor
 {
 	GENERATED_BODY()
-	
+
+	enum class PowerupType {
+
+		PaddlePlus,
+		PaddleMinus,
+		BallSplit,
+		BallBig,
+		BallSmall,
+		CompanionPaddle
+	};
 public:	
 	// Sets default values for this actor's properties
 	APowerup();
+
+	UPROPERTY()
+		class UBoxComponent* BoxComponent;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//Speed for movement
+	float Speed;
+	PowerupType Type;
+
+	UFUNCTION()
+		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+
 
 };

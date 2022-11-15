@@ -2,6 +2,7 @@
 
 
 #include "Brick.h"
+#include "Powerup.h"
 #include "Components/BoxComponent.h"
 
 // Sets default values
@@ -14,7 +15,7 @@ ABrick::ABrick()
 	float height = 20;
 
 	HealthPoints = 1;
-	PowerupChance = 50;
+	PowerupChance = 100;
 
 	//Brick Box
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("Box Component");
@@ -52,6 +53,7 @@ void ABrick::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	if (OtherActor->ActorHasTag("Ball")) {
 		if (HealthPoints <= 1)
 		{
+			RollForPowerup();
 			this->Destroy();
 			//TODO: powerup
 		}
@@ -70,5 +72,23 @@ void ABrick::Tick(float DeltaTime)
 
 void ABrick::RollForPowerup()
 {
+	//Roll for random
+	float Roll = FMath::RandRange(0.f, 100.f);
+
+	if (Roll <= PowerupChance) {
+		//params
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		//Spawn location
+		FVector Location = GetActorLocation();
+		FTransform SpawnTransform = FTransform(Location);
+
+		UWorld* _world = GetWorld();
+
+		//Create
+		APowerup* _powerup = _world->SpawnActor<APowerup>(PowerupTemplate, SpawnTransform, SpawnParams);
+	}
 }
 

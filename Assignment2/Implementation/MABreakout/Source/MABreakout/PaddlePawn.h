@@ -21,11 +21,15 @@ public:
 	//Paddle length
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Paddle")
 		float PaddleLength;
+	//Paddle maximum length
+	UPROPERTY(EditAnywhere, Category = "Paddle")
+		float PaddleMax;
+
 	//Paddle Box
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Paddle")
 		class UBoxComponent* BoxComponent;
 	//Sprite
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Sprite")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Paddle")
 		class UPaperSpriteComponent* PawnSpriteComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Paddle")

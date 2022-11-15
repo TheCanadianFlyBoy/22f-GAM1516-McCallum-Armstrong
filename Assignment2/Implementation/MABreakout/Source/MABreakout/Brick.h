@@ -27,6 +27,8 @@ public:
 	// Chance of Powerup Drop
 	UPROPERTY(VisibleAnywhere, Category = "Brick")
 		float PowerupChance;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config", meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class APowerup> PowerupTemplate;
 
 
 protected:
