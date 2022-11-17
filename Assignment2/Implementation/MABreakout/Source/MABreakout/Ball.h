@@ -20,6 +20,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Breaker Ball")
 		class UPaperSpriteComponent* BallSprite;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Breaker Ball")
+		class UPaperFlipbookComponent* BallFlipbook;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Breaker Ball")
 		class UProjectileMovementComponent* ProjectileMovementComponent;
@@ -35,6 +38,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	bool bMoving;
+	float Radius;
+	float MaxRadius;
 
 	UPrimitiveComponent* LastHit;
 
@@ -48,6 +53,14 @@ public:
 
 	//Launch ball
 	void Launch();
+
+	//Powerups
+	void BallBig();
+	void BallSmall();
+	void BallSplit();
+
+	//Regenerate
+	void Regenerate();
 
 private:
 

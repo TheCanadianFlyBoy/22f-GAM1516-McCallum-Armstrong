@@ -11,8 +11,8 @@ APaddlePawn::APaddlePawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	PaddleLength = 100.f;
-	PaddleMax = 200.f;
+	PaddleLength = 80.f;
+	PaddleMax = 150.f;
 
 	Speed = 300.0f;
 
@@ -38,7 +38,7 @@ APaddlePawn::APaddlePawn()
 	//Sprite
 	PawnSpriteComponent = CreateDefaultSubobject<UPaperSpriteComponent>("PaddleSprite");
 	PawnSpriteComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//PawnSpriteComponent->SetupAttachment(RootComponent);
+	PawnSpriteComponent->SetupAttachment(RootComponent);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -86,6 +86,41 @@ void APaddlePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 void APaddlePawn::MoveRight(float value)
 {
 	MovementRight = value;
+}
+
+void APaddlePawn::PaddlePlus()
+{
+	//Check if can lengthen
+	if (PaddleLength < PaddleMax)
+	{
+		//Increment
+		PaddleLength += 10.f;
+		//Regen padle
+		Regenerate();
+	}
+}
+
+void APaddlePawn::PaddleMinus()
+{
+	//Check if can lengthen
+	if (PaddleLength > PaddleMax/4)
+	{
+		//Increment
+		PaddleLength -= 10.f;
+		//Regen padle
+		Regenerate();
+	}
+}
+
+//Regenerates the box component/sprite
+void APaddlePawn::Regenerate()
+{
+	BoxComponent->SetBoxExtent(FVector(PaddleLength, 50, 10));
+	//TODO sprite handling
+
+	//Reset position by jiggling
+	MoveRight(1.0f);
+	MoveRight(-1.0f);
 }
 
 void APaddlePawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

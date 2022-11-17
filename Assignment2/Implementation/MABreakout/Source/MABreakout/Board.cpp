@@ -85,7 +85,7 @@ ABoard::ABoard()
 	//CAMERA
 	BoardCamera = CreateDefaultSubobject<UCameraComponent>("BoardCamera");
 	BoardCamera->SetProjectionMode(ECameraProjectionMode::Orthographic);
-	BoardCamera->SetOrthoWidth(3000.0f);
+	BoardCamera->SetOrthoWidth(2200.f);
 	BoardCamera->SetAspectRatio(boardWidth / boardHeight); //TODO: figure out aspect ratio
 	BoardCamera->SetupAttachment(BoardRoot);
 	BoardCamera->AddLocalRotation(FRotator(0, -90, 0));
@@ -109,15 +109,17 @@ ABoard::ABoard()
 
 void ABoard::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	//TODO - remove
 }
 
 void ABoard::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	//TODO - remove
 }
 
 void ABoard::SpawnPowerup(ABrick* _brick)
 {
+	//TODO - remove
 }
 
 void ABoard::SpawnBall()
@@ -191,6 +193,7 @@ void ABoard::BeginPlay()
 
 void ABoard::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	//TODO - remove
 }
 
 // Called every frame
@@ -239,6 +242,7 @@ void ABoard::GenerateBoard()
 		{
 			int row_number = FMath::RandRange(0, brick_count);
 			row_number = FMath::Clamp(row_number, 1, (int) max_bricks_x);
+			int row_health = FMath::RandRange(1, 5);
 
 			float row_borders = FMath::Fmod(spawn_width, (float) row_number);
 
@@ -253,10 +257,13 @@ void ABoard::GenerateBoard()
 				FTransform SpawnTransform = FTransform(SpawnVector);
 				//Create new brick
 				ABrick* _brick = World->SpawnActor<ABrick>(BrickTemplate, SpawnTransform, SpawnParams);
-				if (_brick)
-				{
-					FVector direction = FRotationMatrix(SpawnTransform.Rotator()).GetScaledAxis(EAxis::X);
-				}
+				//Set health
+				_brick->HealthPoints = row_health;
+				_brick->UpdateSprite();
+				//if (_brick)
+				//{
+				//	FVector direction = FRotationMatrix(SpawnTransform.Rotator()).GetScaledAxis(EAxis::X);
+				//}
 
 				brick_count--;
 

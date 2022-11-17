@@ -27,7 +27,7 @@ void ABreakoutGameMode::BeginPlay()
         //CALL ConsoleCommand() on controller passing in command, false
         controller->ConsoleCommand(command, false);
         //SET bShowMouseCursor on controller to true
-        controller->bShowMouseCursor = true;
+        controller->bShowMouseCursor = true; //TODO - cleanup
         //SET bEnableClickEvents on controller to true
         controller->bEnableClickEvents = true;
         //SET bEnableMouseOverEvents on controller to true

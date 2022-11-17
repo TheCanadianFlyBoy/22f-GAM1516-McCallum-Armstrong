@@ -4,6 +4,7 @@
 #include "Brick.h"
 #include "Powerup.h"
 #include "Components/BoxComponent.h"
+#include "PaperFlipBookComponent.h"
 
 // Sets default values
 ABrick::ABrick()
@@ -39,6 +40,11 @@ ABrick::ABrick()
 	//Root
 	SetRootComponent(BoxComponent);
 
+	BrickFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>("BrickFlipbook");
+	BrickFlipbook->Stop();
+	BrickFlipbook->SetPlaybackPositionInFrames(HealthPoints - 1, true);
+	BrickFlipbook->SetupAttachment(RootComponent);
+
 }
 
 // Called when the game starts or when spawned
@@ -58,7 +64,10 @@ void ABrick::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 			//TODO: powerup
 		}
 		else {
+			//Subtract health
 			HealthPoints--;
+			//Update flipbook
+			UpdateSprite();
 		}
 	}
 }
@@ -78,7 +87,7 @@ void ABrick::RollForPowerup()
 	if (Roll <= PowerupChance) {
 		//params
 		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
+		SpawnParams.Owner = GetOwner();
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		//Spawn location
@@ -90,5 +99,11 @@ void ABrick::RollForPowerup()
 		//Create
 		APowerup* _powerup = _world->SpawnActor<APowerup>(PowerupTemplate, SpawnTransform, SpawnParams);
 	}
+}
+
+void ABrick::UpdateSprite()
+{
+	int frame = HealthPoints+1;
+	BrickFlipbook->SetPlaybackPositionInFrames(frame, true);
 }
 

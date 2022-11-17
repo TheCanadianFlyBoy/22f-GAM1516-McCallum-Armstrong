@@ -3,19 +3,56 @@
 
 #include "Powerup.h"
 #include "Board.h"
+#include "Ball.h"
 #include "Components/BoxComponent.h"
 #include "PaddlePawn.h"
+#include "BreakoutAIController.h"
+#include "EngineUtils.h" //Needed for TActorIterator
 
 // Sets default values
 APowerup::APowerup()
 {
+	//Add passthrough tag
+	Tags.Add("BallPassThrough");
 	//Set starter speed
 	Speed = 200.0f;
 
+	//Create collison box
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("PowerupBox");
 	BoxComponent->SetBoxExtent(FVector(20, 0, 20));
-	BoxComponent->SetNotifyRigidBodyCollision(true);		//TODO: FIX COLLISION
+	BoxComponent->SetSimulatePhysics(false);
+	BoxComponent->SetEnableGravity(false);
+	BoxComponent->SetCollisionProfileName("OverlapAll");
+	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	BoxComponent->SetNotifyRigidBodyCollision(true);
+	BoxComponent->OnComponentHit.AddDynamic(this, &APowerup::OnHit);
+	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &APowerup::BeginOverlap);
 	SetRootComponent(BoxComponent);
+
+	//Set type TODO: make random
+	int TypeRoll = FMath::RandRange(1, 5);
+	switch (TypeRoll) {
+		case 1: {
+			Type = PowerupType::PaddlePlus;
+			break;
+		}
+		case 2: {
+			Type = PowerupType::PaddleMinus;
+			break;
+		}
+		case 3: {
+			Type = PowerupType::BallSplit;
+			break;
+		}
+		case 4: {
+			Type = PowerupType::BallBig;
+			break;
+		}
+		case 5: {
+			Type = PowerupType::BallSmall;
+			break;
+		}
+	}
 
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -44,12 +81,20 @@ void APowerup::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 		{
 			case PowerupType::PaddlePlus: 
 			{
-				
+				if (Paddle->PaddleLength < Paddle->PaddleMax)
+				{
+					Paddle->PaddleLength += 20;
+					Paddle->Regenerate();
+				}
 				break;
 			}
 			case PowerupType::PaddleMinus:
 			{
 
+				if (Paddle->PaddleLength < Paddle->PaddleMax/4)
+				{
+					Paddle->PaddleLength -= 20;
+				}
 				break;
 			}
 			case PowerupType::BallSplit:
@@ -73,6 +118,127 @@ void APowerup::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 				break;
 			}
 		}
+
+		//Destroy
+		this->Destroy();
+
+	}
+	else if (OtherComp == Board->GetBottom()) {
+		//Delete self at bottom
+		this->Destroy();
+
+	}
+}
+
+void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ABoard* Board = Cast<ABoard>(GetOwner());
+
+	if (OtherActor->ActorHasTag("Paddle"))
+	{
+		//Cast to paddle
+		APaddlePawn* Paddle = Cast<APaddlePawn>(OtherActor);
+
+		//TODO: add powerup logic
+		switch (Type)
+		{
+		case PowerupType::PaddlePlus:
+		{
+			//Call effect
+			Paddle->PaddlePlus();
+			//TODO PROOF FOR AI PADDLE
+			FTimerHandle handle;
+			//Callback for end of effect
+			GetWorldTimerManager().SetTimer(handle, Paddle, &APaddlePawn::PaddleMinus, 10.0f, false);
+			break;
+		}
+		case PowerupType::PaddleMinus:
+		{
+			//Call effect
+			Paddle->PaddleMinus();
+			break;
+			FTimerHandle handle;
+			//Callback for end of effect
+			GetWorldTimerManager().SetTimer(handle, Paddle, &APaddlePawn::PaddlePlus, 10.0f, false);
+		}
+		case PowerupType::BallSplit:
+		{
+			//Iterate all balls;
+			for (TActorIterator<ABall> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
+				//Call effect
+				ABall* _ball = *ActorItr;
+				_ball->BallSplit();
+				
+
+			}
+			break;
+		}
+		case PowerupType::BallBig:
+		{
+			//Iterate all balls;
+			for (TActorIterator<ABall> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
+				ABall* _ball = *ActorItr;
+				_ball->BallBig();
+				//Call timer
+				FTimerHandle handle;
+				//Callback for end of effect
+				GetWorldTimerManager().SetTimer(handle, _ball, &ABall::BallSmall, 10.0f, false);
+			}
+			break;
+		}
+		case PowerupType::BallSmall:
+		{
+			//Iterate all balls;
+			for (TActorIterator<ABall> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
+				ABall* _ball = *ActorItr;
+				_ball->BallSmall();
+				FTimerHandle handle;
+				//Callback for end of effect
+				GetWorldTimerManager().SetTimer(handle, _ball, &ABall::BallSmall, 10.0f, false);
+			}
+			break;
+		}
+		case PowerupType::CompanionPaddle:
+		{
+			//TODO: AI CONTROLLER!!!
+
+			int count = 0;
+
+			for (TActorIterator<APaddlePawn> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
+				count++;
+			}
+
+			//Spawn AI paddle
+			if (count < 2) {
+
+				//params
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = GetOwner();
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+				//Spawn location
+				FVector Location = GetActorLocation();
+				FTransform SpawnTransform = FTransform(Location);
+
+				UWorld* _world = GetWorld();
+
+				//Create
+				APaddlePawn* _paddle = _world->SpawnActor<APaddlePawn>(APaddlePawn::StaticClass(), SpawnTransform, SpawnParams);
+				
+				_paddle->AIControllerClass = ABreakoutAIController::StaticClass();
+				_paddle->InitialLifeSpan = 10.0f;
+
+			}
+			break;
+		}
+		}
+
+		//Destroy
+		this->Destroy();
 
 	}
 	else if (OtherComp == Board->GetBottom()) {

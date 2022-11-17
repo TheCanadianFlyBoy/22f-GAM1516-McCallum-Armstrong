@@ -5,6 +5,7 @@
 #include "PaperSpriteComponent.h"
 #include "PaddlePawn.h"
 #include "Board.h"
+#include "Powerup.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -23,16 +24,19 @@ ABall::ABall()
 	MaxSpeed = 3000000.0f;
 	bMoving = true;
 
+	Radius = 10;
+	MaxRadius = 30;
+
 	LastHit = nullptr;
 
 	//Create collision sphere
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("CollisionSphere");
 	SphereComponent->SetupAttachment(RootComponent);
-	SphereComponent->SetSphereRadius(10);
+	SphereComponent->SetSphereRadius(Radius);
 	SphereComponent->SetSimulatePhysics(false);
 	SphereComponent->SetEnableGravity(false);
 	SphereComponent->BodyInstance.SetCollisionProfileName("BlockAllDynamic");
-	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComponent->SetNotifyRigidBodyCollision(true);
 	SphereComponent->OnComponentHit.AddDynamic(this, &ABall::OnHit);
 	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ABall::BeginOverlap);
@@ -64,35 +68,91 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 
 	//TODO: error catching
 	ABoard* Board = Cast<ABoard>(GetOwner());
+	UClass* e = OtherActor->StaticClass();
 
 	//Reflection vector calculation?
 	if (!Hit.bStartPenetrating && OtherComp != LastHit) {
+
+		//Handle paddle reflection
 		if (OtherActor->ActorHasTag("Paddle"))
 		{
-			//TODO: paddle math
+			//Get location
 			FVector PaddleLocation = OtherActor->GetActorLocation();
+			//Cast to Paddle type
 			APaddlePawn* Paddle = Cast<APaddlePawn>(OtherActor);
-
+			//Get distance to centre
 			float DeltaX = (GetActorLocation().X - PaddleLocation.X);
 
-			//Get angle
-			float angle = 90 - (DeltaX/Paddle->PaddleLength * 80);
-			FRotator NewDirection = FRotator(angle, 0, 0);
+			//If hitting within the top face
+			if (abs(DeltaX) <= Paddle->PaddleLength) {
+				//Get angle of reflection based on distance to centre
+				float angle = 90 - (DeltaX / Paddle->PaddleLength * 80);
+				FRotator NewDirection = FRotator(angle, 0, 0);
 
-			//Displacement
-			//FVector internalDisplacement = Hit.TraceEnd - Hit.ImpactPoint;
-			float distance = Hit.PenetrationDepth;
-			FVector displacement = NewDirection.Vector() * distance;
+				//Displacement
+				float distance = Hit.PenetrationDepth; //Get penetration depth
+				FVector displacement = NewDirection.Vector() * distance; //Move back along new vector
 
-			//Move ball
-			SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * 10 + displacement, false, nullptr, ETeleportType::ResetPhysics);
-			SetActorRotation(NewDirection, ETeleportType::ResetPhysics);
+				//Move ball to impact point, move out of the object, then displace
+				SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * 10 + displacement, false, nullptr, ETeleportType::ResetPhysics);
+				SetActorRotation(NewDirection, ETeleportType::ResetPhysics);
+			}
+			else
+			{
+				//Direction change
+				//Get current direction
+				FRotator Direction = GetActorRotation();
+				//Get vector format and clamp to 2D plane
+				FVector IncidentVector = Direction.Vector();
+				IncidentVector = ClampVectorTo2D(IncidentVector);
+				//Get normal vector and clamp to 2D plane
+				FVector NormalVector = Hit.ImpactNormal;
+				NormalVector = ClampVectorTo2D(NormalVector);
+
+				//Find dot prduct DEBUGGING TODO REMOVE
+				float IncidentDotImpulse = IncidentVector | NormalVector;
+				FVector x = 2.0f * ((IncidentVector | NormalVector) * NormalVector);
+
+				//Find reflection vector
+				FVector NewVelocity = IncidentVector - 2.0f * ((IncidentVector | NormalVector) * NormalVector);
+				//Set new direction
+				//FRotator NewDirection = NewVelocity.Rotation();
+				float angle = atan2(NewVelocity.Z, NewVelocity.X);
+				angle = FMath::RadiansToDegrees(angle);
+				FRotator NewDirection = FRotator(angle, 0, 0);
+				//FQuat NewDirection = FQuat(NewVelocity.Rotation());
+				//Handle displacement
+
+				//FVector internalDisplacement = Hit.TraceEnd - Hit.ImpactPoint;
+				float distance = Hit.PenetrationDepth;
+
+				FVector displacement = NewVelocity * distance;
+
+				//Displace
+				SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * 10 + displacement, false, nullptr, ETeleportType::ResetPhysics);
+				SetActorRotation(NewDirection, ETeleportType::ResetPhysics);
+			}
+
 		}
+
+		//Handle ball deletion
 		else if (OtherComp == Board->GetBottom())
 		{
+			//Decrement ball count, destroy self
 			Board->BallCount--;
 			this->Destroy();
-		} else {
+
+		}
+
+		//Pass through override
+		else if (OtherActor->ActorHasTag("BallPassThrough"))
+		{
+			//NOTHING - here to avoid any collision with non solid objects
+		} 
+
+		//Handle default reflection
+		else 
+		{
 			//Direction change
 			//Get current direction
 			FRotator Direction = GetActorRotation();
@@ -115,13 +175,6 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 			angle = FMath::RadiansToDegrees(angle);
 			FRotator NewDirection = FRotator(angle, 0, 0);
 			//FQuat NewDirection = FQuat(NewVelocity.Rotation());
-
-		
-
-			//TODO REFACTOR
-			float boardWidth = 500;
-			float boardHeight = 500;
-			float borderWidth = 10;
 			//Handle displacement
 
 			//FVector internalDisplacement = Hit.TraceEnd - Hit.ImpactPoint;
@@ -147,16 +200,17 @@ void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Get location
 	FVector NewLocation = GetActorLocation();
 	//Move ball automatically
 	if (bMoving) {
-
+		//Move ball with current speed
 		NewLocation += GetActorForwardVector() * Speed * DeltaTime;
-
+		//Increment speed over time
 		Speed += DeltaTime * 15.0f;
 	
 	}
-
+	//Set to location
 	SetActorLocation(NewLocation, true, nullptr, ETeleportType::ResetPhysics);
 
 }
@@ -168,15 +222,48 @@ UPrimitiveComponent* ABall::GetPhysicsComponent()
 
 void ABall::Launch()
 {
+	bMoving = true;
+}
+
+//TODO REFACTOR
+void ABall::BallBig()
+{
+	if (Radius < MaxRadius)
+	{
+		Radius += 1.f;
+		Speed -= 5.f;
+		Regenerate();
+	}
+}
+
+void ABall::BallSmall()
+{
+	if (Radius > MaxRadius/4)
+	{
+		Radius -= 2.f;
+		Speed += 10.f;
+		Regenerate();
+	}
+}
+
+void ABall::BallSplit()
+{
+
+}
+
+void ABall::Regenerate()
+{
+	SphereComponent->SetSphereRadius(Radius);
 }
 
 void ABall::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	//TODO - remove
 
 }
 
 void ABall::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	//TODO - remove
 }
 

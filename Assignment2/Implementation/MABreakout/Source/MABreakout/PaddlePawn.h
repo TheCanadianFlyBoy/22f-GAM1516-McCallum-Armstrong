@@ -54,6 +54,12 @@ public:
 	//Movement functionality
 	void MoveRight(float value);
 
+	//Powerup functions
+	void PaddlePlus();
+	void PaddleMinus();
+
+	void Regenerate();
+
 private:
 	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

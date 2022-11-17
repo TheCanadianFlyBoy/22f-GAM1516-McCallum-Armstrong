@@ -21,6 +21,9 @@ public:
 	// Paper Sprite
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sprite")
 	//	class UPaperSpriteComponent* BrickSprite;
+	// 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brick", meta = (AllowPrivateAccess = "true"))
+		class UPaperFlipbookComponent* BrickFlipbook;
 	//Health Points
 	UPROPERTY(VisibleAnywhere, Category = "Brick")
 		float HealthPoints;
@@ -44,5 +47,8 @@ public:
 
 	//Roll for powerup on destruction
 	void RollForPowerup();
+
+	//Update sprite
+	void UpdateSprite();
 
 };
