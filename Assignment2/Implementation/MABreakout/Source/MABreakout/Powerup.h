@@ -24,8 +24,14 @@ public:
 	// Sets default values for this actor's properties
 	APowerup();
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Powerup")
 		class UBoxComponent* BoxComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Powerup", meta = (AllowPrivateAccess = "true"))
+		class UPaperFlipbookComponent* PowerupFlipbookComponent;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Powerup")
+		PowerupType Type;
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,10 +39,6 @@ protected:
 
 	//Speed for movement
 	float Speed;
-	PowerupType Type;
-
-	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
 		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

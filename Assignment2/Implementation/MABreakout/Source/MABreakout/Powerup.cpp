@@ -5,6 +5,7 @@
 #include "Board.h"
 #include "Ball.h"
 #include "Components/BoxComponent.h"
+#include "PaperFlipbookComponent.h"
 #include "PaddlePawn.h"
 #include "BreakoutAIController.h"
 #include "EngineUtils.h" //Needed for TActorIterator
@@ -25,7 +26,6 @@ APowerup::APowerup()
 	BoxComponent->SetCollisionProfileName("OverlapAll");
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	BoxComponent->SetNotifyRigidBodyCollision(true);
-	BoxComponent->OnComponentHit.AddDynamic(this, &APowerup::OnHit);
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &APowerup::BeginOverlap);
 	SetRootComponent(BoxComponent);
 
@@ -52,7 +52,17 @@ APowerup::APowerup()
 			Type = PowerupType::BallSmall;
 			break;
 		}
+		case 6: {
+			Type = PowerupType::CompanionPaddle;
+			break;
+		}
 	}
+
+	//Create sprite
+	PowerupFlipbookComponent = CreateDefaultSubobject<UPaperFlipbookComponent>("PowerupFlipbook");
+	PowerupFlipbookComponent->Stop();
+	PowerupFlipbookComponent->SetPlaybackPositionInFrames(TypeRoll, true);
+	PowerupFlipbookComponent->SetupAttachment(RootComponent);
 
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -64,71 +74,42 @@ void APowerup::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
-
-void APowerup::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-
-	ABoard* Board = Cast<ABoard>(GetOwner());
-
-	if (OtherActor->ActorHasTag("Paddle"))
+	switch (Type)
 	{
-		//Cast to paddle
-		APaddlePawn* Paddle = Cast<APaddlePawn>(OtherActor);
-
-		//TODO: add powerup logic
-		switch (Type)
-		{
-			case PowerupType::PaddlePlus: 
+		case PowerupType::PaddlePlus:
 			{
-				if (Paddle->PaddleLength < Paddle->PaddleMax)
-				{
-					Paddle->PaddleLength += 20;
-					Paddle->Regenerate();
-				}
+				PowerupFlipbookComponent->SetPlaybackPositionInFrames(2, true);
 				break;
 			}
 			case PowerupType::PaddleMinus:
 			{
-
-				if (Paddle->PaddleLength < Paddle->PaddleMax/4)
-				{
-					Paddle->PaddleLength -= 20;
-				}
+				PowerupFlipbookComponent->SetPlaybackPositionInFrames(3, true);
 				break;
 			}
 			case PowerupType::BallSplit:
 			{
-
+				PowerupFlipbookComponent->SetPlaybackPositionInFrames(4, true);
 				break;
 			}
 			case PowerupType::BallBig:
 			{
-
+				PowerupFlipbookComponent->SetPlaybackPositionInFrames(5, true);
 				break;
 			}
 			case PowerupType::BallSmall:
 			{
-
+				PowerupFlipbookComponent->SetPlaybackPositionInFrames(6, true);
 				break;
 			}
 			case PowerupType::CompanionPaddle:
 			{
-				//TODO: AI CONTROLLER!!!
+				PowerupFlipbookComponent->SetPlaybackPositionInFrames(7, true);
 				break;
 			}
-		}
-
-		//Destroy
-		this->Destroy();
-
 	}
-	else if (OtherComp == Board->GetBottom()) {
-		//Delete self at bottom
-		this->Destroy();
 
-	}
 }
+
 
 void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {

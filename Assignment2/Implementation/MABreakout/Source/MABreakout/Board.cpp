@@ -9,6 +9,7 @@
 #include "Ball.h"
 #include "BreakoutGameMode.h"
 #include "BreakoutGameState.h"
+#include "PaperSpriteComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "EngineUtils.h" //Needed for TActorIterator
 
@@ -50,6 +51,13 @@ ABoard::ABoard()
 	BoardRoot = CreateDefaultSubobject<USceneComponent>("SceneRoot");
 	RootComponent = BoardRoot;
 
+	//BACKING
+	BoardBacking = CreateDefaultSubobject<UPaperSpriteComponent>("Backing");
+	BoardBacking->SetupAttachment(RootComponent);
+	BoardBacking->SetSimulatePhysics(false);
+	BoardBacking->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BoardBacking->SetCollisionProfileName("NoCollision");
+	BoardBacking->AddLocalOffset(FVector(0, -1, 0));
 
 	//BOX COLLISION
 	//Bottom Trigger Zone

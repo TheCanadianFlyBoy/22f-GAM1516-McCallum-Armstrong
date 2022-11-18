@@ -21,22 +21,26 @@ APaddlePawn::APaddlePawn()
 	//Collision Box
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("CollisionBox");
 	BoxComponent->SetBoxExtent(FVector(PaddleLength, 50, 10));
-	BoxComponent->SetSimulatePhysics(true);
+	BoxComponent->SetSimulatePhysics(false);
 	BoxComponent->SetEnableGravity(false);
 	BoxComponent->SetCollisionProfileName("BlockAllDynamic");
-	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	BoxComponent->BodyInstance.bNotifyRigidBodyCollision = true;
 	//Collision Locks
 	BoxComponent->GetBodyInstance()->bLockRotation = true;
 	BoxComponent->GetBodyInstance()->bLockXRotation = true;
 	BoxComponent->GetBodyInstance()->bLockYRotation = true;
 	BoxComponent->GetBodyInstance()->bLockZRotation = true;
+	//BoxComponent->GetBodyInstance()->bLockTranslation = true;
 	BoxComponent->GetBodyInstance()->bLockYTranslation = true;
 	BoxComponent->GetBodyInstance()->bLockZTranslation = true;
+	//BoxComponent->GetBodyInstance()->bLockXTranslation = true;
 	//BoxComponent->GetBodyInstance()->bLockXTranslation = true;
 	SetRootComponent(BoxComponent);
 
 	//Sprite
 	PawnSpriteComponent = CreateDefaultSubobject<UPaperSpriteComponent>("PaddleSprite");
+	PawnSpriteComponent->SetSimulatePhysics(false);
 	PawnSpriteComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	PawnSpriteComponent->SetupAttachment(RootComponent);
 
@@ -116,8 +120,8 @@ void APaddlePawn::PaddleMinus()
 void APaddlePawn::Regenerate()
 {
 	BoxComponent->SetBoxExtent(FVector(PaddleLength, 50, 10));
-	//TODO sprite handling
-
+	float scale = PaddleLength / (80.f / 2.f);
+	PawnSpriteComponent->SetRelativeScale3D(FVector(scale, 2.f, 2.f));
 	//Reset position by jiggling
 	MoveRight(1.0f);
 	MoveRight(-1.0f);

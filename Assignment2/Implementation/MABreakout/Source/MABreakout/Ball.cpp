@@ -7,6 +7,7 @@
 #include "Board.h"
 #include "Powerup.h"
 #include "Components/SphereComponent.h"
+#include "PaperFlipbookComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 FVector ClampVectorTo2D(FVector& _vector) {
@@ -50,6 +51,15 @@ ABall::ABall()
 	SphereComponent->BodyInstance.bLockXTranslation = true;
 	SphereComponent->BodyInstance.bLockZTranslation = true;
 
+	//TODO: fix this
+	//Create flipbook
+//BallFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>("BallFlipbook");
+//BallFlipbook->SetupAttachment(RootComponent);
+//BallFlipbook->AddLocalOffset(FVector(-32, 0, 0));
+//BallFlipbook->SetSimulatePhysics(false);
+//BallFlipbook->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+//BallFlipbook->SetCollisionProfileName("NoCollision", false);
+
 	SetRootComponent(SphereComponent);
 
 	Tags.Add("Ball");
@@ -75,7 +85,7 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 
 		//Handle paddle reflection
 		if (OtherActor->ActorHasTag("Paddle"))
-		{
+		{		//TODO Paddle into ball from side issue
 			//Get location
 			FVector PaddleLocation = OtherActor->GetActorLocation();
 			//Cast to Paddle type
@@ -129,7 +139,7 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 				FVector displacement = NewVelocity * distance;
 
 				//Displace
-				SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * 10 + displacement, false, nullptr, ETeleportType::ResetPhysics);
+				SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * 10 + displacement * 2, false, nullptr, ETeleportType::ResetPhysics);
 				SetActorRotation(NewDirection, ETeleportType::ResetPhysics);
 			}
 

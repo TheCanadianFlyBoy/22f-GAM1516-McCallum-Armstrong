@@ -31,8 +31,10 @@ public: //UPROPERTIES
 		class USceneComponent* BoardRoot;
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Board")
 		TArray<class UBoxComponent*> BoxColliders;
-	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Camera")
+	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Board")
 		class UCameraComponent* BoardCamera;
+	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category = "Board")
+		class UPaperSpriteComponent* BoardBacking;
 
 	int BallCount;
 
