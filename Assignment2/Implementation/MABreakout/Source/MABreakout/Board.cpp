@@ -115,21 +115,6 @@ ABoard::ABoard()
 }
 
 
-void ABoard::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	//TODO - remove
-}
-
-void ABoard::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	//TODO - remove
-}
-
-void ABoard::SpawnPowerup(ABrick* _brick)
-{
-	//TODO - remove
-}
-
 void ABoard::SpawnBall()
 {
 	//NULL CATCH
@@ -230,7 +215,7 @@ void ABoard::GenerateBoard()
 {
 
 	//Generic brick count
-	int brick_count = 25;
+	int brick_count = 40;
 	//Dimensions
 	float spawn_width = boardWidth*2 - 2 * borderWidth;
 	float spawn_height = boardHeight / 2 - borderWidth;
@@ -248,37 +233,45 @@ void ABoard::GenerateBoard()
 	if (BrickTemplate != nullptr) {
 		while (brick_count > 0)
 		{
+			//Get number of bricks for row
 			int row_number = FMath::RandRange(0, brick_count);
-			row_number = FMath::Clamp(row_number, 1, (int) max_bricks_x);
-			int row_health = FMath::RandRange(1, 5);
+			row_number = FMath::Clamp(row_number, 0, (int)max_bricks_x);
 
-			float row_borders = FMath::Fmod(spawn_width, (float) row_number);
-
-			UWorld* World = GetWorld();
-
-			for (int i = 0; i < row_number; i++)
+			if (row_number != 0)
 			{
-				//Get x offset
-				float x_offset = (boardWidth*2/ ((float) row_number + 1));
-				//Set new spawn transform
-				FVector SpawnVector = GetActorLocation() - FVector(boardWidth,0,0) + FVector(x_offset * (i + 1), 0, z_offset);
-				FTransform SpawnTransform = FTransform(SpawnVector);
-				//Create new brick
-				ABrick* _brick = World->SpawnActor<ABrick>(BrickTemplate, SpawnTransform, SpawnParams);
-				//Set health
-				_brick->HealthPoints = row_health;
-				_brick->UpdateSprite();
-				//if (_brick)
-				//{
-				//	FVector direction = FRotationMatrix(SpawnTransform.Rotator()).GetScaledAxis(EAxis::X);
-				//}
+				//Set row health
+				int row_health = FMath::RandRange(1, 5);
+				//Calculate borders
+				float row_borders = FMath::Fmod(spawn_width, (float)row_number);
 
-				brick_count--;
+				UWorld* World = GetWorld();
+				for (int i = 0; i < row_number; i++)
+				{
+					//Get x offset
+					float x_offset = (boardWidth * 2 / ((float)row_number + 1));
+					//Set new spawn transform
+					FVector SpawnVector = GetActorLocation() - FVector(boardWidth, 0, 0) + FVector(x_offset * (i + 1), 0, z_offset);
+					FTransform SpawnTransform = FTransform(SpawnVector);
+					//Create new brick
+					ABrick* _brick = World->SpawnActor<ABrick>(BrickTemplate, SpawnTransform, SpawnParams);
+					//Set health
+					_brick->HealthPoints = row_health;
+					_brick->UpdateSprite();
+					//if (_brick)
+					//{
+					//	FVector direction = FRotationMatrix(SpawnTransform.Rotator()).GetScaledAxis(EAxis::X);
+					//}
 
+					brick_count--;
+
+				}
 			}
 
 			//Increment row height
-			z_offset += 40;
+			z_offset += 40.f;
+
+			//Check if too tall
+			if (z_offset > 400.f) break;
 		}
 	}
 }

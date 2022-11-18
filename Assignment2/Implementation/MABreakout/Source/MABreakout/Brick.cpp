@@ -12,11 +12,11 @@ ABrick::ABrick()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	float width = 50;
-	float height = 20;
+	float width = 50.f;
+	float height = 20.f;
 
 	HealthPoints = 1;
-	PowerupChance = 100;
+	PowerupChance = 100.f;
 
 	//Brick Box
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("Box Component");
@@ -56,13 +56,15 @@ void ABrick::BeginPlay()
 
 void ABrick::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	//On ball hit
 	if (OtherActor->ActorHasTag("Ball")) {
+		//Check health
 		if (HealthPoints <= 1)
 		{
 			RollForPowerup();
 			this->Destroy();
-			//TODO: powerup
 		}
+		//Did not die
 		else {
 			//Subtract health
 			HealthPoints--;
@@ -84,6 +86,7 @@ void ABrick::RollForPowerup()
 	//Roll for random
 	float Roll = FMath::RandRange(0.f, 100.f);
 
+	//Spawn powerup
 	if (Roll <= PowerupChance) {
 		//params
 		FActorSpawnParameters SpawnParams;

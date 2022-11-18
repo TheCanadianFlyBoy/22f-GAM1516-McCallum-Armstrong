@@ -52,16 +52,6 @@ public: //UPROPERTIES
 		TSubclassOf<ABrick> BrickTemplate;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<ABall> BallTemplate;
-
-	UFUNCTION()
-		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-		void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-
-	UFUNCTION()
-		void SpawnPowerup(ABrick* _brick);
 	UFUNCTION()
 		void SpawnBall();
 	UFUNCTION()

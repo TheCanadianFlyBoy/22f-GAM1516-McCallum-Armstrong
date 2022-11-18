@@ -99,7 +99,7 @@ void APaddlePawn::PaddlePlus()
 	{
 		//Increment
 		PaddleLength += 10.f;
-		//Regen padle
+		//Regen paddle
 		Regenerate();
 	}
 }

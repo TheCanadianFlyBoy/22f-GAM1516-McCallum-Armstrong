@@ -55,9 +55,15 @@ public:
 	void Launch();
 
 	//Powerups
-	void BallBig();
-	void BallSmall();
-	void BallSplit();
+	UFUNCTION()
+		void BallBig();
+	UFUNCTION()
+		void BallSmall();
+	UFUNCTION()
+		void BallSplit();
+
+	UFUNCTION() //TODO ???
+		void Resize(float value);
 
 	//Regenerate
 	void Regenerate();

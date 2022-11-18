@@ -29,7 +29,7 @@ APowerup::APowerup()
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &APowerup::BeginOverlap);
 	SetRootComponent(BoxComponent);
 
-	//Set type TODO: make random
+	//Set type TODO: Implement missing powerups
 	int TypeRoll = FMath::RandRange(1, 5);
 	switch (TypeRoll) {
 		case 1: {
@@ -41,7 +41,7 @@ APowerup::APowerup()
 			break;
 		}
 		case 3: {
-			Type = PowerupType::BallSplit;
+			Type = PowerupType::PaddlePlus;		//IMPLEMENT - BallSplit
 			break;
 		}
 		case 4: {
@@ -127,10 +127,7 @@ void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		{
 			//Call effect
 			Paddle->PaddlePlus();
-			//TODO PROOF FOR AI PADDLE
-			FTimerHandle handle;
-			//Callback for end of effect
-			GetWorldTimerManager().SetTimer(handle, Paddle, &APaddlePawn::PaddleMinus, 10.0f, false);
+			//TODO proof for AI paddle
 			break;
 		}
 		case PowerupType::PaddleMinus:
@@ -138,21 +135,22 @@ void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			//Call effect
 			Paddle->PaddleMinus();
 			break;
-			FTimerHandle handle;
-			//Callback for end of effect
-			GetWorldTimerManager().SetTimer(handle, Paddle, &APaddlePawn::PaddlePlus, 10.0f, false);
 		}
 		case PowerupType::BallSplit:
 		{
+			TArray<ABall*> Balls;
+
 			//Iterate all balls;
 			for (TActorIterator<ABall> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 			{
-				//Call effect
-				ABall* _ball = *ActorItr;
-				_ball->BallSplit();
-				
-
+				Balls.Add(*ActorItr);	//Not best implementation, TODO - figure out a better solution
 			}
+			//Split balls
+			for (ABall* ball : Balls)
+			{
+				ball->BallSplit();
+			}
+
 			break;
 		}
 		case PowerupType::BallBig:
@@ -162,10 +160,6 @@ void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			{
 				ABall* _ball = *ActorItr;
 				_ball->BallBig();
-				//Call timer
-				FTimerHandle handle;
-				//Callback for end of effect
-				GetWorldTimerManager().SetTimer(handle, _ball, &ABall::BallSmall, 10.0f, false);
 			}
 			break;
 		}
@@ -176,9 +170,6 @@ void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			{
 				ABall* _ball = *ActorItr;
 				_ball->BallSmall();
-				FTimerHandle handle;
-				//Callback for end of effect
-				GetWorldTimerManager().SetTimer(handle, _ball, &ABall::BallSmall, 10.0f, false);
 			}
 			break;
 		}
