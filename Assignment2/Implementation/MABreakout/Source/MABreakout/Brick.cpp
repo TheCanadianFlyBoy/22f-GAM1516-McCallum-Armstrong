@@ -3,7 +3,9 @@
 
 #include "Brick.h"
 #include "Powerup.h"
+#include "Board.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "PaperFlipBookComponent.h"
 
 // Sets default values
@@ -16,7 +18,7 @@ ABrick::ABrick()
 	float height = 20.f;
 
 	HealthPoints = 1;
-	PowerupChance = 100.f;
+	PowerupChance = 35.f;
 
 	//Brick Box
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>("Box Component");
@@ -61,7 +63,12 @@ void ABrick::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 		//Check health
 		if (HealthPoints <= 1)
 		{
+			//Roll
 			RollForPowerup();
+			//Sound
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), BreakSound, GetActorLocation());
+			Cast<ABoard>(GetOwner())->BrickCount--;
+			//Destroy
 			this->Destroy();
 		}
 		//Did not die

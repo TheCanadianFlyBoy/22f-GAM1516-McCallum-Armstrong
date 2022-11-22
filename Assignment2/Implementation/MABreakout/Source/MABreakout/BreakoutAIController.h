@@ -18,12 +18,6 @@ public:
 
 	ABreakoutAIController();
 
-	UPROPERTY(EditAnywhere, Category = "AI Paddle")
-		bool bActive;
-
-	UPROPERTY(EditAnywhere, Category = "AI Paddle")
-		class APaddlePawn* LinkedPaddle;
-
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

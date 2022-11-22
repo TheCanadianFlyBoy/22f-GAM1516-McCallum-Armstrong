@@ -8,7 +8,7 @@
 #include "Powerup.h"
 #include "Components/SphereComponent.h"
 #include "PaperFlipbookComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 FVector ClampVectorTo2D(FVector& _vector) {
 	_vector.Y = 0;
@@ -40,7 +40,7 @@ ABall::ABall()
 	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComponent->SetNotifyRigidBodyCollision(true);
 	SphereComponent->OnComponentHit.AddDynamic(this, &ABall::OnHit);
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ABall::BeginOverlap);
+	SetRootComponent(SphereComponent);
 	//Lock
 	SphereComponent->BodyInstance.bLockRotation = true;
 	SphereComponent->BodyInstance.bLockXRotation = true;
@@ -50,8 +50,6 @@ ABall::ABall()
 	SphereComponent->BodyInstance.bLockYTranslation = true;
 	SphereComponent->BodyInstance.bLockXTranslation = true;
 	SphereComponent->BodyInstance.bLockZTranslation = true;
-
-	//TODO: fix this
 	//Create flipbook
 	BallFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>("BallFlipbook");
 	BallFlipbook->SetupAttachment(SphereComponent);
@@ -61,8 +59,7 @@ ABall::ABall()
 	BallFlipbook->SetCollisionProfileName("OverlapAllDynamic");
 
 
-	SetRootComponent(SphereComponent);
-
+	//Add ball tag
 	Tags.Add("Ball");
 
 }
@@ -82,20 +79,23 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 	UClass* e = OtherActor->StaticClass();
 
 	//Reflection vector calculation?
-	if (!Hit.bStartPenetrating && OtherComp != LastHit) {
+	if (OtherComp != LastHit) {
 
 		//Handle paddle reflection
 		if (OtherActor->ActorHasTag("Paddle"))
 		{		//TODO Paddle into ball from side issue
+			//Play sound
+			PlayBounce();
 			//Get location
 			FVector PaddleLocation = OtherActor->GetActorLocation();
 			//Cast to Paddle type
 			APaddlePawn* Paddle = Cast<APaddlePawn>(OtherActor);
 			//Get distance to centre
 			float DeltaX = (GetActorLocation().X - PaddleLocation.X);
+			float DeltaZ = (GetActorLocation().Z - PaddleLocation.Z);
 
 			//If hitting within the top face
-			if (abs(DeltaX) <= Paddle->PaddleLength) {
+			if (abs(DeltaX) < Paddle->PaddleLength && DeltaZ > 10) {
 				//Get angle of reflection based on distance to centre
 				float angle = 90 - (DeltaX / Paddle->PaddleLength * 80);
 				FRotator NewDirection = FRotator(angle, 0, 0);
@@ -105,11 +105,13 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 				FVector displacement = NewDirection.Vector() * distance; //Move back along new vector
 
 				//Move ball to impact point, move out of the object, then displace
-				SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * 10 + displacement, false, nullptr, ETeleportType::ResetPhysics);
+				SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * Radius + displacement, false, nullptr, ETeleportType::ResetPhysics);
 				SetActorRotation(NewDirection, ETeleportType::ResetPhysics);
 			}
 			else
 			{
+				//Play bounce
+				PlayBounce();
 				//Direction change
 				//Get current direction
 				FRotator Direction = GetActorRotation();
@@ -131,7 +133,6 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 				float angle = atan2(NewVelocity.Z, NewVelocity.X);
 				angle = FMath::RadiansToDegrees(angle);
 				FRotator NewDirection = FRotator(angle, 0, 0);
-				//FQuat NewDirection = FQuat(NewVelocity.Rotation());
 				//Handle displacement
 
 				//FVector internalDisplacement = Hit.TraceEnd - Hit.ImpactPoint;
@@ -151,6 +152,7 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 		{
 			//Decrement ball count, destroy self
 			Board->BallCount--;
+			PlayDeath();
 			this->Destroy();
 
 		}
@@ -158,6 +160,8 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 		//Handle default reflection
 		else if (!OtherActor->ActorHasTag("BallPassThrough"))
 		{
+			//Play sound
+			PlayBounce();
 			//Direction change
 			//Get current direction
 			FRotator Direction = GetActorRotation();
@@ -175,7 +179,6 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 			float angle = atan2(NewVelocity.Z, NewVelocity.X);
 			angle = FMath::RadiansToDegrees(angle);
 			FRotator NewDirection = FRotator(angle, 0, 0);
-			//FQuat NewDirection = FQuat(NewVelocity.Rotation());
 			//Handle displacement
 
 			//FVector internalDisplacement = Hit.TraceEnd - Hit.ImpactPoint;
@@ -184,16 +187,16 @@ void ABall::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCo
 			FVector displacement = NewVelocity * distance;
 
 			//Displace
-			SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * 10 + displacement, false, nullptr, ETeleportType::ResetPhysics);
+			SetActorLocation(Hit.ImpactPoint + Hit.ImpactNormal * Radius + displacement, false, nullptr, ETeleportType::ResetPhysics);
 			SetActorRotation(NewDirection, ETeleportType::ResetPhysics);
 
 		}
 	
-		//Debounce double hits
-		LastHit = OtherComp;
 
 	}
 
+	//Debounce double hits
+	LastHit = OtherComp;
 }
 
 // Called every frame
@@ -208,7 +211,7 @@ void ABall::Tick(float DeltaTime)
 		//Move ball with current speed
 		NewLocation += GetActorForwardVector() * Speed * DeltaTime;
 		//Increment speed over time
-		Speed += DeltaTime * 15.0f;
+		Speed += DeltaTime * 2.0f;
 	
 	}
 	//Set to location
@@ -218,14 +221,29 @@ void ABall::Tick(float DeltaTime)
 	LastHit = nullptr;
 }
 
-UPrimitiveComponent* ABall::GetPhysicsComponent()
-{
-	return SphereComponent;
-}
-
 void ABall::Launch()
 {
 	bMoving = true;
+}
+
+void ABall::PlayBounce()
+{
+	if (!GetWorld()->GetTimerManager().IsTimerActive(sound_debounce_timer))
+	{
+		//Debounce to avoid overly loud popping	
+		UGameplayStatics::PlaySoundAtLocation(this, BounceSound, GetActorLocation());
+		GetWorld()->GetTimerManager().SetTimer(sound_debounce_timer, 0.1f, false);
+	}
+}
+
+void ABall::PlayLaunch()
+{
+	UGameplayStatics::PlaySoundAtLocation(this, LaunchSound, GetActorLocation());
+}
+
+void ABall::PlayDeath()
+{
+	UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation());
 }
 
 //TODO REFACTOR
@@ -249,60 +267,11 @@ void ABall::BallSmall()
 	}
 }
 
-void ABall::BallSplit()
-{
-	//TODO - fix
-	//Get forward direction
-	FVector Forward = GetActorForwardVector();
-	FVector Translation = Forward.RotateAngleAxis(90, FVector(1, 0, 0));
 
-	//Set new radius
-	Radius = FMath::Clamp(Radius / 2, MaxRadius / 4, MaxRadius);
-
-	//Spawn second ball
-	//params
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = GetOwner();
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	//Spawn location
-	FVector Location = GetActorLocation() - Translation * Radius;
-	FTransform SpawnTransform = FTransform(Location);
-	//Set new location for first ball
-	SetActorLocation(GetActorLocation() + Translation * Radius);
-
-	//Get world
-	UWorld* _world = GetWorld();
-
-	//Create second ball
-	ABall* _powerup = _world->SpawnActor<ABall>(this->GetClass(), SpawnTransform, SpawnParams);
-
-}
-
-void ABall::Resize(float value)
-{
-	float new_size = Radius + value;
-	if (new_size <= MaxRadius && new_size > MaxRadius / 4)
-	{
-		Radius = new_size;
-		Regenerate();
-	}
-}
 
 void ABall::Regenerate()
 {
 	SphereComponent->SetSphereRadius(Radius);
 	BallFlipbook->SetWorldScale3D(FVector(0.6f, 0.6f, 0.6f) * Radius * 0.1);
-}
-
-void ABall::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	//TODO - remove
-
-}
-
-void ABall::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	//TODO - remove
 }
 

@@ -100,15 +100,6 @@ ABoard::ABoard()
 	BoardCamera->AddLocalOffset(FVector(-500, 0, 0));
 	BoardCamera->bUsePawnControlRotation = false;
 
-	//Add to colliders
-	BoxColliders.Add(top);
-	BoxColliders.Add(bottom);
-	BoxColliders.Add(left);
-	BoxColliders.Add(right);
-
-	//Create ball
-
-
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -142,6 +133,8 @@ void ABoard::SpawnBall()
 		//Add to ball list
 		Balls.Add(_ball);
 		BallCount++;
+
+		_ball->PlayLaunch();
 
 		//Set launched to true
 		bLaunched = true;
@@ -179,33 +172,48 @@ void ABoard::BeginPlay()
 
 	//Generate board
 	GenerateBoard();
-	//Spawn initial ball
-	SpawnBall();
 
 }
 
-void ABoard::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	//TODO - remove
-}
+
 
 // Called every frame
 void ABoard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//Get Game mode/state
+	ABreakoutGameMode* GameMode = Cast<ABreakoutGameMode>(GetWorld()->GetAuthGameMode());
+	ABreakoutGameState* GameState =  GameMode->GetGameState<ABreakoutGameState>();
+
+	//If out of bricks
+	if (BrickCount <= 0)
+	{
+		//If not already in victory state, trigger
+		if (!GameState->IsVictorious()) {
+			GameState->Victory();
+			for (auto _ball : Balls)
+			{
+				//Null catch
+				if (_ball)
+				{
+					_ball->bMoving = false;
+				}
+			}
+		}
+	}
 
 	//Check if there are balls TODO: refactor to hit event
 	if (BallCount <= 0)
 	{
-		//Get Game mode/state
-		ABreakoutGameMode* GameMode = Cast<ABreakoutGameMode>(GetWorld()->GetAuthGameMode());
-		ABreakoutGameState* GameState =  GameMode->GetGameState<ABreakoutGameState>();
 		//Check lives
 		if (GameState->GetLives() > 0 && bLaunched)
 		{
 			//Return launch control and decrement lives
 			bLaunched = false;
 			GameState->lives--;
+		}
+		else if (GameState->GetLives() == 0) {
+			if (!GameState->IsDefeated()) GameState->Defeat();
 		}
 	}
 
@@ -257,12 +265,11 @@ void ABoard::GenerateBoard()
 					//Set health
 					_brick->HealthPoints = row_health;
 					_brick->UpdateSprite();
-					//if (_brick)
-					//{
-					//	FVector direction = FRotationMatrix(SpawnTransform.Rotator()).GetScaledAxis(EAxis::X);
-					//}
-
+					//Subtract from total count
 					brick_count--;
+
+					//Add
+					BrickCount++;
 
 				}
 			}

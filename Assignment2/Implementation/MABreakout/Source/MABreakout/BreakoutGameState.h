@@ -18,15 +18,27 @@ class MABREAKOUT_API ABreakoutGameState : public AGameStateBase
 		//Constructor
 		ABreakoutGameState();
 
-		UFUNCTION(BlueprintCallable)
-			int GetScore();
+		//Lives Getter
 		UFUNCTION(BlueprintCallable)
 			int GetLives();
+		//Victory/Defeat Calls
 		UFUNCTION(BlueprintCallable)
-			void DefeatPlayer();
-
-		float totalScore;
+			void Defeat();
+		UFUNCTION(BlueprintCallable)
+			void Victory();
+		//Victory/Defeat checkers
+		UFUNCTION(BlueprintCallable)
+			bool IsDefeated();
+		UFUNCTION(BlueprintCallable)
+			bool IsVictorious();
+		//Sounds
+		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
+			class USoundBase* DefeatSound;
+		UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
+			class USoundBase* VictorySound;
+		//Data for storage
 		bool bDefeat;
+		bool bVictory;
 		int lives;
 	
 };

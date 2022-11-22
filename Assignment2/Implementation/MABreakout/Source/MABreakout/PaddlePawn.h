@@ -15,9 +15,6 @@ public:
 	// Sets default values for this pawn's properties
 	APaddlePawn();
 
-	//Root
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		//class USceneComponent* SceneComponent;
 	//Paddle length
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Paddle")
 		float PaddleLength;
@@ -37,9 +34,6 @@ public:
 
 	float MovementRight;
 
-protected: //Variables
-
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -52,7 +46,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	//Movement functionality
-	void MoveRight(float value);
+	void MoveRight(float Value);
 
 	//Powerup functions
 	void PaddlePlus();

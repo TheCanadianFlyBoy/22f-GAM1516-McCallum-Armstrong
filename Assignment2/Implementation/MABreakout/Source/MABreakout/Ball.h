@@ -19,13 +19,7 @@ public:
 		class USphereComponent* SphereComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Breaker Ball")
-		class UPaperSpriteComponent* BallSprite;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Breaker Ball")
 		class UPaperFlipbookComponent* BallFlipbook;
-	
-	UPROPERTY(VisibleAnywhere, Category = "Breaker Ball")
-		class UProjectileMovementComponent* ProjectileMovementComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category  = "Breaker Ball")
 		float Speed;
@@ -33,11 +27,22 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Breaker Ball")
 		float MaxSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Breaker Ball", meta = (AllowPrivateAccess = "true"))
+		class USoundBase* BounceSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Breaker Ball", meta = (AllowPrivateAccess = "true"))
+		class USoundBase* LaunchSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Breaker Ball", meta = (AllowPrivateAccess = "true"))
+		class USoundBase* DeathSound;
+	
+	//Moving toggle
+	bool bMoving;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	bool bMoving;
 	float Radius;
 	float MaxRadius;
 
@@ -48,22 +53,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	//Get sphere
-	UPrimitiveComponent* GetPhysicsComponent();
-
 	//Launch ball
 	void Launch();
+	//Sound functions
+	void PlayBounce();
+	void PlayLaunch();
+	void PlayDeath();
 
 	//Powerups
 	UFUNCTION()
 		void BallBig();
 	UFUNCTION()
 		void BallSmall();
-	UFUNCTION()
-		void BallSplit();
-
-	UFUNCTION() //TODO ???
-		void Resize(float value);
 
 	//Regenerate
 	void Regenerate();
@@ -71,12 +72,8 @@ public:
 private:
 
 	UFUNCTION()
-		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-		void EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	FTimerHandle sound_debounce_timer;
 
 };

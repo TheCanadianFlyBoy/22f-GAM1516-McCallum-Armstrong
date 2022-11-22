@@ -6,6 +6,7 @@
 #include "Board.h"
 #include "PaddlePawn.h"
 #include "EngineUtils.h" //Needed for TActorIterator
+#include "Kismet/KismetSystemLibrary.h"
 
 void APlayerPaddleController::BeginPlay()
 {
@@ -23,12 +24,14 @@ void APlayerPaddleController::BeginPlay()
         }
     }
 
+    InputComponent->BindAction("Exit", EInputEvent::IE_Released, this, &APlayerPaddleController::Exit);
+
 }
 
 void APlayerPaddleController::OnPossess(APawn* aPawn)
 {
     MyPawn = Cast<APaddlePawn>(aPawn);
-    GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, "AMyPlayerController::Possess: - " + aPawn->GetName());
+
     InputComponent->BindAxis("MoveRight", MyPawn, &APaddlePawn::MoveRight);  
 
 }
@@ -36,8 +39,6 @@ void APlayerPaddleController::OnPossess(APawn* aPawn)
 void APlayerPaddleController::OnUnPossess()
 {
     APawn* posessedPawn = Cast<APawn>(GetOwner());
-    if (posessedPawn)
-        GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, "AMyPlayerController::UnPossess: - " + GetOwner()->GetName());
 
     Super::OnUnPossess();
 }
@@ -48,13 +49,13 @@ void APlayerPaddleController::SetupInputComponent()
 
 }
 
-void APlayerPaddleController::AcknowledgePossession(APawn* PossesedPawn)
+void APlayerPaddleController::Exit()
 {
+    UKismetSystemLibrary::QuitGame(this,this, EQuitPreference::Quit,false);
 }
 
 void APlayerPaddleController::MoveRight(float _value)
 {
-        GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, "Moving");
     if (MyPawn)
     {
         MyPawn->MoveRight(_value);

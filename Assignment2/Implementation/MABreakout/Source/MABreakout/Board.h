@@ -12,25 +12,20 @@ class MABREAKOUT_API ABoard : public AActor
 	GENERATED_BODY()
 	
 public:	
-	//Enum for sides
-	enum class BoardSide {
-		Left,
-		Right,
-		Top,
-		Bottom
-	};
-
 
 	// Sets default values for this actor's properties
 	ABoard();
+	//UFUNCTIONS
+	UFUNCTION()
+		void SpawnBall();
+	UFUNCTION()
+		UPrimitiveComponent* GetBottom();
 
 public: //UPROPERTIES
 	
 	//BOARD PROPERTIES
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "SceneRoot")
 		class USceneComponent* BoardRoot;
-	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Board")
-		TArray<class UBoxComponent*> BoxColliders;
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Board")
 		class UCameraComponent* BoardCamera;
 	UPROPERTY(EditAnywhere, BluePrintReadOnly, Category = "Board")
@@ -41,7 +36,7 @@ public: //UPROPERTIES
 
 	//Pointers
 	UPROPERTY(VisibleAnywhere, BluePrintReadOnly, Category = "Board")
-		TArray<class ABrick*> Bricks;
+		int BrickCount;
 	UPROPERTY(VisibleAnywhere, Category = "Board")
 		class APaddlePawn* PlayerPaddle;
 	UPROPERTY(VisibleAnywhere, Category = "Board")
@@ -49,20 +44,12 @@ public: //UPROPERTIES
 
 	//Templates
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config", meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<ABrick> BrickTemplate;
+		TSubclassOf<class ABrick> BrickTemplate;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<ABall> BallTemplate;
-	UFUNCTION()
-		void SpawnBall();
-	UFUNCTION()
-		UPrimitiveComponent* GetBottom();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	//Box component hit
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
 	// Called every frame
@@ -72,7 +59,7 @@ public:
 
 private:
 
-	UBoxComponent* SideBottom;
+	class UBoxComponent* SideBottom;
 
 	bool bLaunched;
 

@@ -24,8 +24,7 @@ protected:
 	//Setup
 	virtual void SetupInputComponent() override;
 
-	virtual void AcknowledgePossession(APawn* PossesedPawn) override;
-
+	void Exit();
 
 	//Movement for axis
 	void MoveRight(float _value);

@@ -12,43 +12,38 @@ ABreakoutAIController::ABreakoutAIController()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//Auto shutdown on creation
-	bActive = false;
 
 }
 
 void ABreakoutAIController::Tick(float DeltaTime)
 {
 	
-	if (bActive)
-	{
 		//Create pointer
 		ABall* _nearest = nullptr;
 		//Iterate all balls
 		for (TActorIterator<ABall> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			//find nearest
-			if (_nearest == nullptr || LinkedPaddle->GetDistanceTo(*ActorItr) < LinkedPaddle->GetDistanceTo(_nearest))
+			if (_nearest == nullptr || GetPawn()->GetDistanceTo(*ActorItr) < GetPawn()->GetDistanceTo(_nearest))
 			{
 				_nearest = *ActorItr;
 			}
 		}
 
 		//Null check
-		if (_nearest)
+		if (_nearest && GetPawn())
 		{
+			//Get location
+			FVector displacement = _nearest->GetActorLocation() - GetPawn()->GetActorLocation();
+
 			//Get direction
-			float direction = LinkedPaddle->GetHorizontalDistanceTo(_nearest);
+			float direction = displacement.X;
 			direction /= abs(direction);
 
 			//Move
-			LinkedPaddle->MoveRight(direction);
+			Cast<APaddlePawn>(GetPawn())->MoveRight(direction);
 
 		}
-
-		
-
-	}
 
 
 }

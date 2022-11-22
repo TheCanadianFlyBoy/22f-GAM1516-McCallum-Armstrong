@@ -9,6 +9,7 @@
 #include "PaddlePawn.h"
 #include "BreakoutAIController.h"
 #include "EngineUtils.h" //Needed for TActorIterator
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APowerup::APowerup()
@@ -30,30 +31,26 @@ APowerup::APowerup()
 	SetRootComponent(BoxComponent);
 
 	//Set type TODO: Implement missing powerups
-	int TypeRoll = FMath::RandRange(1, 5);
+	int TypeRoll = FMath::RandRange(1,5);
 	switch (TypeRoll) {
 		case 1: {
-			Type = PowerupType::PaddlePlus;
+			Type = EPowerupType::PaddlePlus;
 			break;
 		}
 		case 2: {
-			Type = PowerupType::PaddleMinus;
+			Type = EPowerupType::PaddleMinus;
 			break;
-		}
+		};
 		case 3: {
-			Type = PowerupType::PaddlePlus;		//IMPLEMENT - BallSplit
+			Type = EPowerupType::BallBig;
 			break;
 		}
 		case 4: {
-			Type = PowerupType::BallBig;
+			Type = EPowerupType::BallSmall;
 			break;
 		}
 		case 5: {
-			Type = PowerupType::BallSmall;
-			break;
-		}
-		case 6: {
-			Type = PowerupType::CompanionPaddle;
+			Type = EPowerupType::CompanionPaddle;
 			break;
 		}
 	}
@@ -76,34 +73,29 @@ void APowerup::BeginPlay()
 	
 	switch (Type)
 	{
-		case PowerupType::PaddlePlus:
+		case EPowerupType::PaddlePlus:
+			{
+				PowerupFlipbookComponent->SetPlaybackPositionInFrames(1, true);
+				break;
+			}
+			case EPowerupType::PaddleMinus:
 			{
 				PowerupFlipbookComponent->SetPlaybackPositionInFrames(2, true);
 				break;
 			}
-			case PowerupType::PaddleMinus:
+			case EPowerupType::BallBig:
 			{
 				PowerupFlipbookComponent->SetPlaybackPositionInFrames(3, true);
 				break;
 			}
-			case PowerupType::BallSplit:
+			case EPowerupType::BallSmall:
 			{
 				PowerupFlipbookComponent->SetPlaybackPositionInFrames(4, true);
 				break;
 			}
-			case PowerupType::BallBig:
+			case EPowerupType::CompanionPaddle:
 			{
 				PowerupFlipbookComponent->SetPlaybackPositionInFrames(5, true);
-				break;
-			}
-			case PowerupType::BallSmall:
-			{
-				PowerupFlipbookComponent->SetPlaybackPositionInFrames(6, true);
-				break;
-			}
-			case PowerupType::CompanionPaddle:
-			{
-				PowerupFlipbookComponent->SetPlaybackPositionInFrames(7, true);
 				break;
 			}
 	}
@@ -119,41 +111,25 @@ void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	{
 		//Cast to paddle
 		APaddlePawn* Paddle = Cast<APaddlePawn>(OtherActor);
+		UGameplayStatics::PlaySoundAtLocation(this, PowerupSound, GetActorLocation());
 
 		//TODO: add powerup logic
 		switch (Type)
 		{
-		case PowerupType::PaddlePlus:
+		case EPowerupType::PaddlePlus:
 		{
 			//Call effect
 			Paddle->PaddlePlus();
 			//TODO proof for AI paddle
 			break;
 		}
-		case PowerupType::PaddleMinus:
+		case EPowerupType::PaddleMinus:
 		{
 			//Call effect
 			Paddle->PaddleMinus();
 			break;
 		}
-		case PowerupType::BallSplit:
-		{
-			TArray<ABall*> Balls;
-
-			//Iterate all balls;
-			for (TActorIterator<ABall> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-			{
-				Balls.Add(*ActorItr);	//Not best implementation, TODO - figure out a better solution
-			}
-			//Split balls
-			for (ABall* ball : Balls)
-			{
-				ball->BallSplit();
-			}
-
-			break;
-		}
-		case PowerupType::BallBig:
+		case EPowerupType::BallBig:
 		{
 			//Iterate all balls;
 			for (TActorIterator<ABall> ActorItr(GetWorld()); ActorItr; ++ActorItr)
@@ -163,7 +139,7 @@ void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			}
 			break;
 		}
-		case PowerupType::BallSmall:
+		case EPowerupType::BallSmall:
 		{
 			//Iterate all balls;
 			for (TActorIterator<ABall> ActorItr(GetWorld()); ActorItr; ++ActorItr)
@@ -173,7 +149,7 @@ void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			}
 			break;
 		}
-		case PowerupType::CompanionPaddle:
+		case EPowerupType::CompanionPaddle:
 		{
 			//TODO: AI CONTROLLER!!!
 
@@ -193,16 +169,18 @@ void APowerup::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 				//Spawn location
-				FVector Location = GetActorLocation();
+				FVector Location = FVector(GetActorLocation().X, 0, -460);
 				FTransform SpawnTransform = FTransform(Location);
 
 				UWorld* _world = GetWorld();
 
 				//Create
-				APaddlePawn* _paddle = _world->SpawnActor<APaddlePawn>(APaddlePawn::StaticClass(), SpawnTransform, SpawnParams);
+				APaddlePawn* _paddle = _world->SpawnActor<APaddlePawn>(PaddleTemplate, SpawnTransform, SpawnParams);
 				
-				_paddle->AIControllerClass = ABreakoutAIController::StaticClass();
-				_paddle->InitialLifeSpan = 10.0f;
+				_paddle->AIControllerClass = ControllerTemplate;
+				_paddle->SpawnDefaultController();
+				_paddle->Controller->SetPawn(_paddle);
+				_paddle->SetLifeSpan(20.0f);	//TODO: implement lifespan extension!
 
 			}
 			break;

@@ -11,11 +11,10 @@ class MABREAKOUT_API APowerup : public AActor
 {
 	GENERATED_BODY()
 
-	enum class PowerupType {
+	enum class EPowerupType {
 
 		PaddlePlus,
 		PaddleMinus,
-		BallSplit,
 		BallBig,
 		BallSmall,
 		CompanionPaddle
@@ -30,8 +29,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Powerup", meta = (AllowPrivateAccess = "true"))
 		class UPaperFlipbookComponent* PowerupFlipbookComponent;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Powerup")
-		PowerupType Type;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Powerup", meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class APaddlePawn> PaddleTemplate;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Powerup", meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class AAIController> ControllerTemplate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Breaker Ball", meta = (AllowPrivateAccess = "true"))
+		class USoundBase* PowerupSound;
+
+		EPowerupType Type;
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,6 +47,7 @@ protected:
 	//Speed for movement
 	float Speed;
 
+	//Overlap: only affects paddles
 	UFUNCTION()
 		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 

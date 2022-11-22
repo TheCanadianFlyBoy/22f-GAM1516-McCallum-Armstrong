@@ -18,10 +18,7 @@ public:
 	// Collision Box
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision Box")
 		class UBoxComponent* BoxComponent;
-	// Paper Sprite
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sprite")
-	//	class UPaperSpriteComponent* BrickSprite;
-	// 
+	//Flipbook
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Brick", meta = (AllowPrivateAccess = "true"))
 		class UPaperFlipbookComponent* BrickFlipbook;
 	//Health Points
@@ -30,9 +27,12 @@ public:
 	// Chance of Powerup Drop
 	UPROPERTY(VisibleAnywhere, Category = "Brick")
 		float PowerupChance;
+	//Powerup template
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Config", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class APowerup> PowerupTemplate;
-
+	//Sound
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
+		class USoundBase* BreakSound;
 
 protected:
 	// Called when the game starts or when spawned
