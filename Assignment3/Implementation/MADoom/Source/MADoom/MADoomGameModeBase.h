@@ -14,4 +14,7 @@ class MADOOM_API AMADoomGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void BeginPlay() override;
+
 };

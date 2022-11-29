@@ -3,3 +3,18 @@
 
 #include "EnemyController.h"
 
+void AEnemyController::BeginPlay()
+{
+}
+
+void AEnemyController::OnPossess(APawn* aPawn)
+{
+}
+
+void AEnemyController::OnUnPossess()
+{
+}
+
+void AEnemyController::SetupInputComponent()
+{
+}
