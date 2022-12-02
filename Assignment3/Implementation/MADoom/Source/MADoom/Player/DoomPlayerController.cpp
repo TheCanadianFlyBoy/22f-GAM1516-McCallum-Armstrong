@@ -3,6 +3,7 @@
 
 #include "DoomPlayerController.h"
 #include "PlayerCharacter.h"
+#include "Camera/CameraComponent.h"
 
 void ADoomPlayerController::OnPossess(APawn* aPawn)
 {
@@ -10,8 +11,8 @@ void ADoomPlayerController::OnPossess(APawn* aPawn)
 
     InputComponent->BindAxis("MoveRight",   MyPawn, &APlayerCharacter::MoveRight);
     InputComponent->BindAxis("MoveForward", MyPawn, &APlayerCharacter::MoveForward);
-    InputComponent->BindAxis("LookUp",      MyPawn, &APlayerCharacter::LookUp);
-    InputComponent->BindAxis("LookRight",   MyPawn, &APlayerCharacter::LookRight);
+    InputComponent->BindAxis("LookUp",      this, &ADoomPlayerController::LookUp);
+    InputComponent->BindAxis("LookRight",   this, &ADoomPlayerController::LookRight);
     //TODO InputComponent->BindAction("Exit", EInputEvent::IE_Released, this, &APlayerPaddleController::Exit);
 
     SetViewTarget(MyPawn);
@@ -30,4 +31,15 @@ void ADoomPlayerController::SetupInputComponent()
 
 void ADoomPlayerController::Exit()
 {
+}
+
+void ADoomPlayerController::LookUp(float Value)
+{
+    AddPitchInput(Value);
+    MyPawn->CameraComponent->AddLocalRotation(FRotator(Value, 0.f, 0.f));
+}
+
+void ADoomPlayerController::LookRight(float Value)
+{
+    AddYawInput(Value);
 }

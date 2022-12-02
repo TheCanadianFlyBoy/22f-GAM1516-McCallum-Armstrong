@@ -31,6 +31,9 @@ protected:
 	//void MoveRight(float _value);
 	//void MoveForward(float _value)
 
+	void LookUp(float Value);
+	void LookRight(float Value);
+
 	class APlayerCharacter* MyPawn;
 
 };

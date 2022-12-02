@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Controller.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter():
@@ -17,15 +18,17 @@ APlayerCharacter::APlayerCharacter():
 	CollisionComponent->SetSimulatePhysics(true);
 	SetRootComponent(CollisionComponent);
 
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = true;
+
 	MovementComponent = this->GetCharacterMovement();
 	MovementComponent->SetUpdatedComponent(RootComponent);
+	MovementComponent->bConstrainToPlane = true;
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	CameraComponent->SetupAttachment(RootComponent);
-
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationPitch = false;
+	CameraComponent->bUsePawnControlRotation = true;
 
 
 
@@ -54,23 +57,22 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	MovementComponent->AddInputVector(GetActorForwardVector() * Value, true);
-	//AddMovementInput(GetActorForwardVector(), Value, true);
+	AddMovementInput(GetActorForwardVector(), Value);
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	AddMovementInput(GetActorRightVector(), Value, true);
+	
 }
 
 void APlayerCharacter::LookUp(float Value)
 {
-	CameraComponent->AddLocalRotation(FRotator(Value, 0, 0));
+	
 }
 
 void APlayerCharacter::LookRight(float Value)
 {
-	CameraComponent->AddLocalRotation(FRotator(0, Value, 0));
+	//CameraComponent->AddLocalRotation(FRotator(0, Value, 0));
 	
 }
 
