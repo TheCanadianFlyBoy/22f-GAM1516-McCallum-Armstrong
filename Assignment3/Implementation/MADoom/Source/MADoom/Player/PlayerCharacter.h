@@ -16,12 +16,6 @@ public:
 	APlayerCharacter();
 
 	UPROPERTY(VisibleAnywhere, Category = "DOOM")
-		class UCapsuleComponent* CollisionComponent;
-
-	UPROPERTY(VisibleAnywhere, Category = "DOOM")
-		class UPawnMovementComponent* MovementComponent;
-
-	UPROPERTY(VisibleAnywhere, Category = "DOOM")
 		class UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "DOOM")
@@ -42,7 +36,7 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

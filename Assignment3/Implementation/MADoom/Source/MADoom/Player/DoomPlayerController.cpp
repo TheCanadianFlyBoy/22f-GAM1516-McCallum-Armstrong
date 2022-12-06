@@ -7,15 +7,21 @@
 
 void ADoomPlayerController::OnPossess(APawn* aPawn)
 {
+    //Call super
+    Super::OnPossess(aPawn);
+    //Cast
     MyPawn = Cast<APlayerCharacter>(aPawn);
-
-    InputComponent->BindAxis("MoveRight",   MyPawn, &APlayerCharacter::MoveRight);
-    InputComponent->BindAxis("MoveForward", MyPawn, &APlayerCharacter::MoveForward);
+    //Set target
+    SetViewTarget(MyPawn);
+    //Bind axes
     InputComponent->BindAxis("LookUp",      this, &ADoomPlayerController::LookUp);
     InputComponent->BindAxis("LookRight",   this, &ADoomPlayerController::LookRight);
-    //TODO InputComponent->BindAction("Exit", EInputEvent::IE_Released, this, &APlayerPaddleController::Exit);
+    InputComponent->BindAxis("MoveRight", MyPawn, &APlayerCharacter::MoveRight);
+    InputComponent->BindAxis("MoveForward", MyPawn, &APlayerCharacter::MoveForward);
+    //Bind actions
+    InputComponent->BindAction("Jump",EInputEvent::IE_Released, MyPawn, &APlayerCharacter::Jump); 
 
-    SetViewTarget(MyPawn);
+
 
 }
 
@@ -35,8 +41,7 @@ void ADoomPlayerController::Exit()
 
 void ADoomPlayerController::LookUp(float Value)
 {
-    AddPitchInput(Value);
-    MyPawn->CameraComponent->AddLocalRotation(FRotator(Value, 0.f, 0.f));
+    AddPitchInput(-Value);
 }
 
 void ADoomPlayerController::LookRight(float Value)

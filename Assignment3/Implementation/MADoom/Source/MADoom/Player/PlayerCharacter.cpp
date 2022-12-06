@@ -8,26 +8,18 @@
 #include "GameFramework/Controller.h"
 
 // Sets default values
-APlayerCharacter::APlayerCharacter():
-	ACharacter()
+APlayerCharacter::APlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CollisionComponent = this->GetCapsuleComponent();
-	CollisionComponent->SetSimulatePhysics(true);
-	SetRootComponent(CollisionComponent);
-
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	bUseControllerRotationYaw = true;
-
-	MovementComponent = this->GetCharacterMovement();
-	MovementComponent->SetUpdatedComponent(RootComponent);
-	MovementComponent->bConstrainToPlane = true;
+	//bUseControllerRotationPitch = false;
+	//bUseControllerRotationRoll = false;
+	//bUseControllerRotationYaw = true;
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	CameraComponent->SetupAttachment(RootComponent);
+	CameraComponent->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 	CameraComponent->bUsePawnControlRotation = true;
 
 
@@ -41,12 +33,7 @@ void APlayerCharacter::BeginPlay()
 	
 }
 
-// Called every frame
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
-}
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -57,12 +44,17 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	AddMovementInput(GetActorForwardVector(), Value);
+	if (Value != 0.f) {
+		AddMovementInput(GetActorForwardVector(), Value);
+	}
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	
+	if (Value != 0.f)
+	{
+		AddMovementInput(GetActorRightVector(), Value);
+	}
 }
 
 void APlayerCharacter::LookUp(float Value)
@@ -82,5 +74,8 @@ void APlayerCharacter::Fire()
 
 void APlayerCharacter::Jump()
 {
+	if (GetCharacterMovement()->CanAttemptJump()) {
+		GetCharacterMovement()->DoJump(false);
+	}
 }
 

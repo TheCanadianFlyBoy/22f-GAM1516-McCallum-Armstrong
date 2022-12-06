@@ -11,6 +11,11 @@ AWeapon::AWeapon()
 
 }
 
+void AWeapon::Fire()
+{
+	//TODO
+}
+
 // Called when the game starts or when spawned
 void AWeapon::BeginPlay()
 {
