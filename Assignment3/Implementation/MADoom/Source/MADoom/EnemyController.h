@@ -19,14 +19,7 @@ class MADOOM_API AEnemyController : public AAIController
 {
 	GENERATED_BODY()
 
-
-public:
-
-	UPROPERTY(VisibleAnywhere, Category = "DOOM AI")
-		EAIState CurrentAIState;
-	UPROPERTY(EditAnywhere, Category = "DOOM AI")
-		TArray<class ATargetPoint*> PatrolPoints;
-
+	
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
@@ -35,6 +28,16 @@ public:
 
 protected:
 	virtual void SetupInputComponent();
+
+
+	// The current point the actor is either moving to or standing at
+	AActor* CurrentPatrolPoint;
+	//Patrol point index
+	int PatrolPointIndex;
+
+
+	UFUNCTION() //WIthout this, the function will be inlined and optimized out
+		void MoveToNextPatrolPoint();
 
 	class AEnemyCharacter* MyCharacter;
 	
