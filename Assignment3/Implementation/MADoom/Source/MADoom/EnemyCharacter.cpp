@@ -98,6 +98,8 @@ void AEnemyCharacter::Tick(float DeltaTime)
 				{
 					Controller->Destroy();
 				}
+				//Set collision to inactive
+				this->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 			}
 			//Else, do directional stuff
 			else if (DeltaDirection > 45.f)

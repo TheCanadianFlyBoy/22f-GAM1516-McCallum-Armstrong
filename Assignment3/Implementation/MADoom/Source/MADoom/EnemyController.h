@@ -29,7 +29,9 @@ public:
 protected:
 	virtual void SetupInputComponent();
 
-
+	//Nav System
+	class UNavigationSystemV1* NavArea;
+	FVector RandomLocation;
 	// The current point the actor is either moving to or standing at
 	AActor* CurrentPatrolPoint;
 	//Patrol point index

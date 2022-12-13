@@ -65,6 +65,8 @@ void AEnemyController::Tick(float DeltaTime)
 void AEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	NavArea = FNavigationSystem::GetCurrent<UNavigationSystemV1>(this);
 }
 
 void AEnemyController::OnPossess(APawn* aPawn)
@@ -124,6 +126,11 @@ void AEnemyController::PawnAlertTimeOut()
 void AEnemyController::PawnAttackTimeOut()
 {
 	MyCharacter->CurrentAIState = EAIState::Alert;
+	if (NavArea)
+	{
+		NavArea->K2_GetRandomReachablePointInRadius(GetWorld(), GetPawn()->GetActorLocation(),	RandomLocation, 15000.0f);		
+		MoveToLocation(RandomLocation);
+	}
 }
 
 void AEnemyController::MoveToNextPatrolPoint()
