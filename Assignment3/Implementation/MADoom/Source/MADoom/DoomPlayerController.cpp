@@ -5,6 +5,7 @@
 #include "PlayerCharacter.h"
 #include "InventoryComponent.h"
 #include "Camera/CameraComponent.h"
+#include "DoomPlayerState.h"
 
 void ADoomPlayerController::OnPossess(APawn* aPawn)
 {
@@ -52,10 +53,16 @@ void ADoomPlayerController::Exit()
 
 void ADoomPlayerController::LookUp(float Value)
 {
-    AddPitchInput(-Value);
+    ADoomPlayerState* MyState = (ADoomPlayerState*)GetPawn()->GetPlayerState();
+    if (!MyState->IsDead()) {
+        AddPitchInput(-Value);
+    }
 }
 
 void ADoomPlayerController::LookRight(float Value)
 {
-    AddYawInput(Value);
+    ADoomPlayerState* MyState = (ADoomPlayerState*)GetPawn()->GetPlayerState();
+    if (!MyState->IsDead()) {
+        AddYawInput(Value);
+    }
 }

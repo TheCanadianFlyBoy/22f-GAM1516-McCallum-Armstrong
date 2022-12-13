@@ -21,8 +21,10 @@ public:
 	class AWeapon* GetCurrentWeapon();
 	AWeapon* NextWeapon();
 	AWeapon* PreviousWeapon();
+	//Add/pickup
 	void AddWeapon(AWeapon* Weapon);
 	void PickupWeapon(AWeapon* Weapon);
+	//Checkers
 	bool HasKey(EKeyColour Colour);
 	bool HasWeapon(const FName &WeaponName);
 

@@ -2,6 +2,10 @@
 
 
 #include "DoomPlayerState.h"
+#include "PlayerCharacter.h"
+#include "InventoryComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Checkpoint.h"
 
 void ADoomPlayerState::OnDamage(float Damage)
 {
@@ -20,7 +24,12 @@ void ADoomPlayerState::OnDamage(float Damage)
 	//Death check
 	if (Health <= 0)
 	{
-		GetPawn()->Destroy();
+		APlayerCharacter* Player = (APlayerCharacter*)GetPawn();
+		Player->GetCharacterMovement()->Velocity = FVector(0, 0, 0);
+		if (LastCheckpoint && !GetWorldTimerManager().IsTimerActive(LoadTimerHandle))
+		{
+			GetWorldTimerManager().SetTimer(LoadTimerHandle, this, &ADoomPlayerState::LoadSaveState, 5.f);
+		}
 	}
 }
 
@@ -52,9 +61,16 @@ float ADoomPlayerState::GetArmour() {
 	return Armour;
 }
 
+void ADoomPlayerState::LoadSaveState()
+{
+	//Cast
+	APlayerCharacter* Player = (APlayerCharacter*)GetPawn();
+	LastCheckpoint->LoadSaveState(Player);
+}
+
 bool ADoomPlayerState::IsDead()
 {
-	return (Health > 0);
+	return (Health <= 0);
 }
 
 void ADoomPlayerState::BeginPlay()

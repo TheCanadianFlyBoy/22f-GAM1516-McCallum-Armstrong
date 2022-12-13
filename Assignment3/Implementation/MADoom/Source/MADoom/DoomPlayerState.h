@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "Weapon.h"
+#include "SaveStateComponent.h"
 #include "DoomPlayerState.generated.h"
 
 /**
@@ -37,6 +38,12 @@ public:
 		float GetHealth();
 	UFUNCTION(BlueprintCallable)
 		float GetArmour();
+
+	
+	void LoadSaveState();
+	//Checkpint
+	class ACheckpoint* LastCheckpoint;
+	FTimerHandle LoadTimerHandle;
 
 	//Non unreal functions
 	void OnDamage(float Damage);

@@ -46,7 +46,9 @@ void AWeapon::Fire()
 	//Play animation
 	SpriteComponent->Play();
 	AudioComponent->Play();
-	NoiseEmitter->MakeNoise(this, 1.0, GetActorLocation());
+
+	ACharacter* ActorOwner = Cast<ACharacter>(GetOwner());
+	ActorOwner->MakeNoise(1.0, ActorOwner, GetActorLocation());
 
 	//Projectile Spawn
 	if (ProjectileTemplate)

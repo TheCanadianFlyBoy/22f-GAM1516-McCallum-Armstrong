@@ -45,7 +45,7 @@ public:
 		UPawnNoiseEmitterComponent* NoiseEmitter;
 
 	//Allows for overriding of fire (future enemy implementation?)
-	void Fire();
+	virtual void Fire();
 
 protected:
 	// Called when the game starts or when spawned

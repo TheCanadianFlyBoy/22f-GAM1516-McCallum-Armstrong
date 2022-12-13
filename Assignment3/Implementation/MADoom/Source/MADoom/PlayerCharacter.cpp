@@ -73,10 +73,6 @@ void APlayerCharacter::OnShot(AActor* DamagedActor, float DamageAmount, const UD
 		MyState->OnDamage(DamageAmount);
 
 	}
-	else {
-		//TODO - death state
-		this->Destroy();
-	}
 }
 
 
@@ -108,7 +104,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	if (Value != 0.f) {
+
+	ADoomPlayerState* MyState = (ADoomPlayerState*)GetPlayerState();
+
+	if (Value != 0.f && !MyState->IsDead()) {
 		AddMovementInput(GetActorForwardVector(), Value);
 	}
 
@@ -116,7 +115,9 @@ void APlayerCharacter::MoveForward(float Value)
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	if (Value != 0.f)
+	ADoomPlayerState* MyState = (ADoomPlayerState*)GetPlayerState();
+
+	if (Value != 0.f && !MyState->IsDead())
 	{
 		AddMovementInput(GetActorRightVector(), Value);
 	}
