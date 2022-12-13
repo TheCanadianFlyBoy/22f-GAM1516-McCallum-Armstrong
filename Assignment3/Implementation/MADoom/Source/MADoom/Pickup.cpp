@@ -72,7 +72,8 @@ void APickup::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 				//Spawn
 				AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponTemplate, SpawnTransform, SpawnParams);
 				Player->InventoryComponent->AddWeapon(NewWeapon);
-				NewWeapon->Equip(Player);
+				//Unequip weapon and equip new weapon
+				
 				
 			}
 			break;

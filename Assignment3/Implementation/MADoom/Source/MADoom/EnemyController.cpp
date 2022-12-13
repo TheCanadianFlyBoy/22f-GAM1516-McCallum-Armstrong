@@ -5,9 +5,12 @@
 #include "EnemyCharacter.h"
 //Components
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Perception/PawnSensingComponent.h"
 //Nav
 #include "NavigationSystem.h"
 #include "AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h"
+//Player
+#include "PlayerCharacter.h"
 
 void AEnemyController::Tick(float DeltaTime)
 {
@@ -36,11 +39,23 @@ void AEnemyController::Tick(float DeltaTime)
 			}
 			//Alert state
 			case EAIState::Alert: {
-
+				
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "ALERT");
+				if (!GetWorldTimerManager().IsTimerActive(SensoryTimerHandle))
+				{
+					GetWorldTimerManager().SetTimer(SensoryTimerHandle, this, &AEnemyController::PawnAlertTimeOut, 5.f);
+				}
 				break;
 			}
 			//Attacking state
 			case EAIState::Attacking:{
+				//DEBUG
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "ATTACKING");
+				//Fire
+				if (!GetWorldTimerManager().IsTimerActive(AttackTimerHandle))
+				{
+					GetWorldTimerManager().SetTimer(AttackTimerHandle, MyCharacter, &AEnemyCharacter::Fire, 2.f);
+				}
 				break;
 			}
 		}
@@ -50,19 +65,21 @@ void AEnemyController::Tick(float DeltaTime)
 void AEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (MyCharacter) {
-		//Set current patrol point
-		CurrentPatrolPoint = (AActor*)MyCharacter->PatrolPoints[0];
-	}
 }
 
 void AEnemyController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
+	//If possessed is an enemy character type
 	if (dynamic_cast<AEnemyCharacter*>(aPawn))
 	{
+		//Cast
 		MyCharacter = dynamic_cast<AEnemyCharacter*>(aPawn);
+		//Set patrol point
+		if (MyCharacter->PatrolPoints.Num() > 0) CurrentPatrolPoint = (AActor*)MyCharacter->PatrolPoints[0];
+		//Set hear/see dynamics
+		MyCharacter->PawnSensingComponent->OnSeePawn.AddDynamic(this, &AEnemyController::OnPawnSeen);
+		MyCharacter->PawnSensingComponent->OnHearNoise.AddDynamic(this, &AEnemyController::OnNoiseHeard);
 	}
 }
 
@@ -74,6 +91,39 @@ void AEnemyController::OnUnPossess()
 void AEnemyController::SetupInputComponent()
 {
 	
+}
+
+void AEnemyController::OnPawnSeen(APawn* SeenPawn)
+{
+	//Check if player
+	APlayerCharacter* Player = dynamic_cast<APlayerCharacter*>(SeenPawn);
+	if (Player)
+	{
+		MyCharacter->CurrentAIState = EAIState::Attacking;
+		GetWorldTimerManager().SetTimer(SensoryTimerHandle, this, &AEnemyController::PawnAttackTimeOut, 5.f);
+		UAIBlueprintHelperLibrary::SimpleMoveToActor(this, Player);
+	}
+}
+
+void AEnemyController::OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume)
+{
+	APlayerCharacter* Player = dynamic_cast<APlayerCharacter*>(NoiseInstigator);
+	if (Player)
+	{
+		MyCharacter->CurrentAIState = EAIState::Alert;
+		GetWorldTimerManager().SetTimer(SensoryTimerHandle, this, &AEnemyController::PawnAlertTimeOut, 5.f);
+		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, Location);
+	}
+}
+
+void AEnemyController::PawnAlertTimeOut()
+{
+	MyCharacter->CurrentAIState = EAIState::Patrolling;
+}
+
+void AEnemyController::PawnAttackTimeOut()
+{
+	MyCharacter->CurrentAIState = EAIState::Alert;
 }
 
 void AEnemyController::MoveToNextPatrolPoint()

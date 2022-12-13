@@ -13,5 +13,14 @@ UCLASS()
 class MADOOM_API ADoomHUD : public AHUD
 {
 	GENERATED_BODY()
-	
+public:
+    ADoomHUD();
+    UPROPERTY(EditAnywhere, Category = "Game Hud")
+        TSubclassOf<class UUserWidget> PlayerGuiClass;
+
+    UPROPERTY()
+        class UUserWidget* PlayerGui;
+
+protected:
+    virtual void BeginPlay() override;
 };

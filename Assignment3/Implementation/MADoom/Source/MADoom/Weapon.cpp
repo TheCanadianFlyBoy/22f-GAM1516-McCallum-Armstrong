@@ -2,12 +2,16 @@
 
 
 #include "Weapon.h"
-#include "PlayerCharacter.h"
-#include "ExplosiveBarrel.h"
-
+//Components
 #include "PaperFlipbookComponent.h"
+#include "ExplosiveBarrel.h"
 #include "Components/AudioComponent.h"
+#include "Components/PawnNoiseEmitterComponent.h"
+//References
+#include "PlayerCharacter.h"
+//Utils
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -15,20 +19,22 @@ AWeapon::AWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	//Sprite
 	SpriteComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("Sprite"));
 	SpriteComponent->Stop();
 	SpriteComponent->SetLooping(false);
 	SpriteComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SpriteComponent->SetWorldScale3D(FVector(0.1, 0.1, 0.1));
-	
+	//Audio
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("SoundEmitter"));
 	AudioComponent->bAutoActivate = false;
 	AudioComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 	AudioComponent->SetupAttachment(RootComponent);
 	AudioComponent->Sound = FireSound;
+	//Noise component
+	NoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("Noise Emitter"));
+	NoiseEmitter->bAutoActivate = true;
 
-	
 	//Set fire
 	bCanFire = true; //TODO remove
 	WeaponRange = 5000.f;
@@ -40,6 +46,7 @@ void AWeapon::Fire()
 	//Play animation
 	SpriteComponent->Play();
 	AudioComponent->Play();
+	NoiseEmitter->MakeNoise(this, 1.0, GetActorLocation());
 
 	//Projectile Spawn
 	if (ProjectileTemplate)
@@ -53,11 +60,8 @@ void AWeapon::Fire()
 		//On hit
 		if (hit && hit->ActorHasTag("CanDamage"))
 		{
-			//TODO - damage handling
-			if (dynamic_cast<AExplosiveBarrel*>(hit))
-			{
-				dynamic_cast<AExplosiveBarrel*>(hit)->Explode();
-			}
+			//Take damage
+			hit->TakeDamage(Damage, FDamageEvent(), GetInstigatorController(), GetOwner());
 		}
 	}
 
@@ -176,6 +180,35 @@ AActor* AWeapon::GetPickableActor_LineTraceSingleByChannel(ECollisionChannel Col
 		FHitResult Hit(ForceInit);
 		UWorld* World = GetWorld();
 		World->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, CollisionChannel, TraceParams); // simple trace function  ECC_PhysicsBody
+		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Green, false, 1, 0, 5.f);
+		return Hit.GetActor();
+	}
+
+	return nullptr;
+}
+
+AActor* AWeapon::GetPickableActor_SphereTraceSingleByChannel(ECollisionChannel CollisionChannel)
+{
+	{
+
+		FVector StartTrace;
+		FVector Direction;
+		FVector EndTrace;
+		SetupRay(StartTrace, Direction, EndTrace);
+
+		float Radius = 10.f;
+
+		//Setup parameters
+		FCollisionQueryParams TraceParams;
+		SetupTraceParams(TraceParams);
+
+		TArray<AActor*> IgnoredActors;
+		IgnoredActors.Add(this);	//Ignore weapon
+		IgnoredActors.Add(this->GetOwner()); //Ignore weapon owner
+
+		FHitResult Hit(ForceInit);
+		UWorld* World = GetWorld();
+		UKismetSystemLibrary::SphereTraceSingle(GetWorld(), StartTrace, EndTrace, Radius, UEngineTypes::ConvertToTraceType(CollisionChannel), false, IgnoredActors, EDrawDebugTrace::ForDuration, Hit, true);
 		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Green, false, 1, 0, 5.f);
 		return Hit.GetActor();
 	}

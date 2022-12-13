@@ -22,6 +22,7 @@ public:
 	AWeapon* NextWeapon();
 	AWeapon* PreviousWeapon();
 	void AddWeapon(AWeapon* Weapon);
+	void PickupWeapon(AWeapon* Weapon);
 	bool HasKey(EKeyColour Colour);
 	bool HasWeapon(const FName &WeaponName);
 

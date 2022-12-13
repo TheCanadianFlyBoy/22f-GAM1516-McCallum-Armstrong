@@ -6,11 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
-UENUM()
-enum class EAmmoType {
-	Light,
-	Medium,
-	Heavy
+UENUM(BlueprintType)
+enum class EAmmoType : uint8 {
+	Light	,
+	Medium	,
+	Heavy	
 };
 
 UCLASS()
@@ -41,6 +41,8 @@ public:
 		class UAudioComponent* AudioComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DOOM Sound")
 		class USoundBase* FireSound;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DOOM Sound");
+		UPawnNoiseEmitterComponent* NoiseEmitter;
 
 	//Allows for overriding of fire (future enemy implementation?)
 	void Fire();
@@ -71,6 +73,7 @@ private:
 	//Traces
 	bool GetPickableActor_LineTraceTestByChannel(ECollisionChannel CollisionChannel);
 	AActor* GetPickableActor_LineTraceSingleByChannel(ECollisionChannel CollisionChannel);
+	AActor* GetPickableActor_SphereTraceSingleByChannel(ECollisionChannel CollisionChannel);
 	TArray<FHitResult> GetPickableActor_LineTraceMultiByChannel(ECollisionChannel CollisionChannel);
 	//Setup ray trace
 	void SetupRay(FVector& StartTrace, FVector& Direction, FVector& EndTrace);

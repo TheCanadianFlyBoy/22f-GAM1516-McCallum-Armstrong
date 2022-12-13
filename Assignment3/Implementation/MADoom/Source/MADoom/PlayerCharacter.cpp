@@ -2,13 +2,16 @@
 
 
 #include "PlayerCharacter.h"
+//Components
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
-
 #include "InventoryComponent.h"
+#include "Components/PawnNoiseEmitterComponent.h"
+//References
 #include "Weapon.h"
+#include "DoomPlayerState.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -40,7 +43,10 @@ APlayerCharacter::APlayerCharacter()
 	WeaponSocket->AddLocalOffset(GetActorForwardVector() * 25.f - FVector(0,0,10.f), false);
 	WeaponSocket->AddLocalRotation(FRotator(0.f, 90.f, 0.f));
 
+	NoiseComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter"));
 
+	//Subscribe to damage
+	this->OnTakeAnyDamage.AddDynamic(this, &APlayerCharacter::OnShot);
 
 }
 
@@ -48,9 +54,22 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	
-	
+void APlayerCharacter::OnShot(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageInstigator)
+{
+	//Controller null check
+	if (MyController)
+	{
+		//Get state and update damage
+		ADoomPlayerState* MyState = (ADoomPlayerState*)GetPlayerState();
+		MyState->OnDamage(DamageAmount);
+
+	}
+	else {
+		//TODO - death state
+		this->Destroy();
+	}
 }
 
 
@@ -60,6 +79,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//Weapon sway
+	FVector WeaponOrigin = FVector(25, 0, -10.f);
+	FVector WeaponCurrent = WeaponSocket->GetRelativeLocation();
+	FVector WeaponDelta = WeaponCurrent - WeaponOrigin;
+
+	//Get rotation
+	FRotator WeaponSwayRotator = WeaponDelta.ToOrientationRotator();
+	//Toggle direction
+	WeaponSwayToggle = fabsf(WeaponSwayRotator.Yaw) > 90 ? !WeaponSwayToggle : WeaponSwayToggle;
+	WeaponSway = WeaponSwayToggle ? WeaponSway + DeltaTime : WeaponSway - DeltaTime;
+
 
 }
 
@@ -85,17 +114,6 @@ void APlayerCharacter::MoveRight(float Value)
 		AddMovementInput(GetActorRightVector(), Value);
 	}
 
-}
-
-void APlayerCharacter::LookUp(float Value)
-{
-	
-}
-
-void APlayerCharacter::LookRight(float Value)
-{
-	//CameraComponent->AddLocalRotation(FRotator(0, Value, 0));
-	
 }
 
 void APlayerCharacter::NextWeapon()

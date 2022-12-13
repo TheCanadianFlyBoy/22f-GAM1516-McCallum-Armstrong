@@ -35,10 +35,23 @@ protected:
 	//Patrol point index
 	int PatrolPointIndex;
 
+	FTimerHandle AttackTimerHandle;
+	FTimerHandle SensoryTimerHandle;
+	//Sensory function
+	UFUNCTION()
+		void OnPawnSeen(APawn* SeenPawn);
+	UFUNCTION()
+		void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
+	UFUNCTION()
+		void PawnAlertTimeOut();
+	UFUNCTION()
+		void PawnAttackTimeOut();
+
 
 	UFUNCTION() //WIthout this, the function will be inlined and optimized out
 		void MoveToNextPatrolPoint();
 
+	//Pointer to enemy character
 	class AEnemyCharacter* MyCharacter;
 	
 };

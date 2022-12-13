@@ -20,7 +20,7 @@ void ADoomPlayerController::OnPossess(APawn* aPawn)
     InputComponent->BindAxis("MoveRight", MyPawn, &APlayerCharacter::MoveRight);
     InputComponent->BindAxis("MoveForward", MyPawn, &APlayerCharacter::MoveForward);
     //Bind movement/manipualtion actions
-    InputComponent->BindAction("Jump",EInputEvent::IE_Released, MyPawn, &APlayerCharacter::Jump); 
+    InputComponent->BindAction("Jump",EInputEvent::IE_Pressed, MyPawn, &APlayerCharacter::Jump); 
 
     //Bind inventory actions
     InputComponent->BindAction("NextWeapon", EInputEvent::IE_Released, MyPawn, &APlayerCharacter::NextWeapon);
@@ -29,6 +29,9 @@ void ADoomPlayerController::OnPossess(APawn* aPawn)
     //Bind weapon actions
     InputComponent->BindAction("PrimaryFire", EInputEvent::IE_Pressed, MyPawn, &APlayerCharacter::BeginFire); //TODO - remove gun "jamming"
     InputComponent->BindAction("PrimaryFire", EInputEvent::IE_Released, MyPawn, &APlayerCharacter::EndFire);
+
+    //Set pointer to self
+    MyPawn->MyController = this;
 
 
 }

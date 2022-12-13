@@ -35,9 +35,19 @@ AWeapon* UInventoryComponent::PreviousWeapon()
 
 void UInventoryComponent::AddWeapon(AWeapon* Weapon)
 {
+	//Unequip Weapon if not null
+	if (CurrentWeapon) CurrentWeapon->Unequip();
+	//Add new weapon
 	Weapons.Add(Weapon);
 	CurrentWeapon = Weapon;
-	CurrentWeapon->Equip(Cast<APlayerCharacter>(this->GetOwner())); //TODO refactor or make less... bad
+	//Equip
+	CurrentWeapon->Equip(dynamic_cast<APlayerCharacter*>(GetOwner()));
+}
+
+void UInventoryComponent::PickupWeapon(AWeapon* Weapon)
+{
+	//Add weapon
+	AddWeapon(Weapon);
 }
 
 bool UInventoryComponent::HasWeapon(const FName &SearchName)
