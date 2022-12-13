@@ -31,6 +31,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DOOM Sprite")
 		class UPaperFlipbook* WalkSprite_Forward;
 	UPROPERTY(EditAnywhere, Category = "DOOM Sprite")
+		class UPaperFlipbook* WalkSprite_Backward;
+	UPROPERTY(EditAnywhere, Category = "DOOM Sprite")
 		class UPaperFlipbook* WalkSprite_Left;
 	UPROPERTY(EditAnywhere, Category = "DOOM Sprite")
 		class UPaperFlipbook* WalkSprite_Right;
@@ -60,6 +62,7 @@ public:
 		EAIState CurrentAIState;
 	UPROPERTY(VisibleAnywhere, Category = "DOOM AI")
 		class UPawnSensingComponent* PawnSensingComponent;
+	AEnemyController* MyController;
 
 protected:
 	// Called when the game starts or when spawned
@@ -80,6 +83,7 @@ public:
 	void MoveRight(float Value);
 	//Attack
 	void Fire();
+	FVector TargetVector;
 	//Line Trace
 	AActor* GetPickableActor_LineTraceSingleByChannel(ECollisionChannel Channel);
 	void SetupRay(FVector& StartTrace, FVector& Direction, FVector& EndTrace);

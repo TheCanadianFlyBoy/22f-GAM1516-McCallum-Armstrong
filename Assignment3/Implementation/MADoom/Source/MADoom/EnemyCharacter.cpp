@@ -43,7 +43,7 @@ AEnemyCharacter::AEnemyCharacter()
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("Sensing Component"));
 
 	//Subscribe damage
-	this->OnTakeAnyDamage.AddDynamic(this, &AEnemyCharacter::OnShot);
+	//this->OnTakeAnyDamage.AddDynamic(this, &AEnemyCharacter::OnShot); TODO REMOVE
 }
 
 // Called when the game starts or when spawned
@@ -62,7 +62,8 @@ void AEnemyCharacter::OnShot(AActor* DamagedActor, float DamageAmount, const UDa
 {
 	if (Health > 0)
 	{
-		Health -= DamageAmount;
+		//Health -= DamageAmount;
+
 	}
 }
 
@@ -85,8 +86,9 @@ void AEnemyCharacter::Tick(float DeltaTime)
 			SpriteComponent->SetWorldRotation(SpriteDirection);
 			SpriteComponent->AddLocalRotation(FRotator(0, 90.f, 0));
 			//Set directional sprite
-			FRotator CharacterDirection = SpriteDirection - GetActorForwardVector().Rotation();
-			float DeltaDirection = CharacterDirection.Yaw - SpriteDirection.Yaw;
+			FRotator CharacterDirection = GetActorRotation();
+			FRotator PlayerDirection = Player->GetActorRotation();
+			FRotator DeltaDirection = CharacterDirection - PlayerDirection;
 			//If dead
 			if (Health <= 0)
 			{
@@ -94,24 +96,27 @@ void AEnemyCharacter::Tick(float DeltaTime)
 				SpriteComponent->SetFlipbook(DeathSprite_Standard);
 				SpriteComponent->SetLooping(false);
 				//if controller exists, delete it
-				if (Controller)
+				if (MyController)
 				{
-					Controller->Destroy();
+					MyController->OnDeath();
+					//Set collision to inactive
+					this->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 				}
-				//Set collision to inactive
-				this->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 			}
 			//Else, do directional stuff
-			else if (DeltaDirection > 45.f)
+			else if (DeltaDirection.Yaw < 270 + 45 && DeltaDirection.Yaw > 270 - 45)
 			{
 				SpriteComponent->SetFlipbook(WalkSprite_Left);
 			}
-			else if (DeltaDirection < -45.f)
+			else if (DeltaDirection.Yaw < 90 + 45 && DeltaDirection.Yaw > 45)
 			{
 				SpriteComponent->SetFlipbook(WalkSprite_Right);
 			}
-			else {
+			else if (DeltaDirection.Yaw < 180 + 45 && DeltaDirection.Yaw > 180 - 45) {
 				SpriteComponent->SetFlipbook(WalkSprite_Forward);
+			}
+			else {
+				SpriteComponent->SetFlipbook(WalkSprite_Backward);
 			}
 		}
 	}
@@ -202,7 +207,7 @@ AActor* AEnemyCharacter::GetPickableActor_LineTraceSingleByChannel(ECollisionCha
 void AEnemyCharacter::SetupRay(FVector& StartTrace, FVector& Direction, FVector& EndTrace)
 {
 	StartTrace = GetActorLocation(); // trace start is the camera location
-	Direction = GetActorForwardVector() + (FVector(FMath::RandRange(-1,1), FMath::RandRange(-1, 1), FMath::RandRange(-1, 1)) * Accuracy);
+	Direction = TargetVector + (FVector(FMath::RandRange(-1,1), FMath::RandRange(-1, 1), FMath::RandRange(-1, 1)) * Accuracy);
 	EndTrace = StartTrace + Direction * 5000.f; // and trace end is the camera location + an offset in the direction you are looking, the 5000 is the distance at which it checks
 }
 

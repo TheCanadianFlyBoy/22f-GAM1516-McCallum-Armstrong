@@ -25,9 +25,13 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* aPawn);
 	virtual void OnUnPossess();
+	virtual void OnDeath();
 
 protected:
 	virtual void SetupInputComponent();
+
+	UFUNCTION()
+		virtual void OnShot(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageInstigator);
 
 	//Nav System
 	class UNavigationSystemV1* NavArea;
@@ -37,13 +41,15 @@ protected:
 	//Patrol point index
 	int PatrolPointIndex;
 
+	//Sensory Variables
 	FTimerHandle AttackTimerHandle;
 	FTimerHandle SensoryTimerHandle;
-	//Sensory function
+	//Sensory functions
 	UFUNCTION()
 		void OnPawnSeen(APawn* SeenPawn);
 	UFUNCTION()
 		void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
+	//Timeouts
 	UFUNCTION()
 		void PawnAlertTimeOut();
 	UFUNCTION()

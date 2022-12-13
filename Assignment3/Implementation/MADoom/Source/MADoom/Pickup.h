@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "PlayerCharacter.h"
+#include "Weapon.h"
 #include "Pickup.generated.h"
 
 UENUM()
@@ -24,15 +25,21 @@ public:
 	// Sets default values for this actor's properties
 	APickup();
 
-	//Physical Properties
+	//Components
 	UPROPERTY(EditAnywhere, Category = "Pickup")
 		class UPaperFlipbookComponent* SpriteComponent;
 	UPROPERTY(EditAnywhere, Category = "Pickup")
 		class USphereComponent* PickupSphere;
 
+	//Audio
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DOOM Audio")
+		class USoundBase* PickupSound;
+
 	//Backend Properties
 	UPROPERTY(EditAnywhere, Category = "DOOM")
 		EPickupType PickupType;
+	UPROPERTY(EditAnywhere, Category = "DOOM")
+		EAmmoType AmmoType;
 	UPROPERTY(EditAnywhere, Category = "DOOM")
 		TSubclassOf<class AWeapon> WeaponTemplate;
 	UPROPERTY(EditAnywhere, Category = "DOOM")

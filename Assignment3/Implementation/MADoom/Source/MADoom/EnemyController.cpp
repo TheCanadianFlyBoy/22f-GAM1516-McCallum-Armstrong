@@ -77,8 +77,11 @@ void AEnemyController::OnPossess(APawn* aPawn)
 	{
 		//Cast
 		MyCharacter = dynamic_cast<AEnemyCharacter*>(aPawn);
+		MyCharacter->MyController = this;
 		//Set patrol point
 		if (MyCharacter->PatrolPoints.Num() > 0) CurrentPatrolPoint = (AActor*)MyCharacter->PatrolPoints[0];
+		//Setup damage dynamics
+		MyCharacter->OnTakeAnyDamage.AddDynamic(this, &AEnemyController::OnShot);
 		//Set hear/see dynamics
 		MyCharacter->PawnSensingComponent->OnSeePawn.AddDynamic(this, &AEnemyController::OnPawnSeen);
 		MyCharacter->PawnSensingComponent->OnHearNoise.AddDynamic(this, &AEnemyController::OnNoiseHeard);
@@ -90,11 +93,36 @@ void AEnemyController::OnUnPossess()
 	Super::OnUnPossess();
 }
 
+void AEnemyController::OnDeath()
+{
+	//Clear timers
+	GetWorldTimerManager().ClearTimer(AttackTimerHandle);
+	GetWorldTimerManager().ClearTimer(SensoryTimerHandle);
+	//Destroy self
+	MyCharacter->MyController = nullptr;
+	this->Destroy();
+}
+
 void AEnemyController::SetupInputComponent()
 {
 	
 }
 
+
+void AEnemyController::OnShot(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageInstigator)
+{
+	if (MyCharacter)
+	{
+		//If alive
+		if (MyCharacter->Health > 0)
+		{
+			//Take damage
+			MyCharacter->Health -= DamageAmount;
+			//"See" target that hit
+			OnPawnSeen((APawn*)DamageInstigator);
+		}
+	}
+}
 void AEnemyController::OnPawnSeen(APawn* SeenPawn)
 {
 	//Check if player
@@ -104,6 +132,7 @@ void AEnemyController::OnPawnSeen(APawn* SeenPawn)
 		MyCharacter->CurrentAIState = EAIState::Attacking;
 		GetWorldTimerManager().SetTimer(SensoryTimerHandle, this, &AEnemyController::PawnAttackTimeOut, 5.f);
 		UAIBlueprintHelperLibrary::SimpleMoveToActor(this, Player);
+		MyCharacter->TargetVector = Player->GetActorLocation() - MyCharacter->GetActorLocation();
 	}
 }
 

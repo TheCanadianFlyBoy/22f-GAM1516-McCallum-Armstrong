@@ -54,8 +54,15 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Give default weapon
+	if (DefaultWeapon)
+	{
+		InventoryComponent->AddWeapon((AWeapon*)GetWorld()->SpawnActor(DefaultWeapon));
+	}
 }
 
+//TODO move to player state
 void APlayerCharacter::OnShot(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageInstigator)
 {
 	//Controller null check

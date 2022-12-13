@@ -16,12 +16,14 @@ public:
 	APlayerCharacter();
 	
 	//Player Stats
-	UPROPERTY(EditAnywhere, Category = "DOOM Character Stats")
+	UPROPERTY(EditAnywhere, Category = "DOOM Character")
 		float Health = 100.f;
 	UPROPERTY(VisibleAnywhere, Category = "DOOM Character")
 		float MaxSpeed;
 	UPROPERTY(VisibleAnywhere, Category = "DOOM Chararcter")
 		float JumpSpeed;
+	UPROPERTY(EditAnywhere, Category = "DOOM Character")
+		TSubclassOf<class AWeapon> DefaultWeapon;
 
 	//Components
 	UPROPERTY(VisibleAnywhere, Category = "DOOM Character")

@@ -2,11 +2,18 @@
 
 
 #include "Pickup.h"
+//Components
 #include "Components/SphereComponent.h"
+#include "Components/AudioComponent.h"
+#include "PaperFlipbookComponent.h"
+//References
 #include "PlayerCharacter.h"
 #include "InventoryComponent.h"
 #include "Weapon.h"
-#include "PaperFlipbookComponent.h"
+#include "DoomPlayerState.h"
+//Utility
+#include "EngineUtils.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
@@ -23,7 +30,6 @@ APickup::APickup()
 	PickupSphere->SetGenerateOverlapEvents(true);
 	//Setup dynamics
 	PickupSphere->OnComponentBeginOverlap.AddDynamic(this, &APickup::OnBeginOverlap);
-
 	SetRootComponent(PickupSphere);
 
 	//Create sprite
@@ -45,6 +51,22 @@ void APickup::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Orient sprite
+	//Assumes single player
+	for (TActorIterator<APlayerCharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		if (ActorItr)
+		{
+			//Get direction to player
+			AActor* Player = *ActorItr;
+			FVector DeltaPosition = GetActorLocation() - Player->GetActorLocation();
+			FRotator SpriteDirection = DeltaPosition.Rotation();
+			//Face the sprite
+			SpriteComponent->SetWorldRotation(SpriteDirection);
+			SpriteComponent->AddLocalRotation(FRotator(0, 90.f, 0));
+		}
+	}
+
 }
 
 void APickup::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -53,6 +75,8 @@ void APickup::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 	{
 		//CAST
 		APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
+		//Cast player state
+		ADoomPlayerState* PlayerState = (ADoomPlayerState*)Player->GetPlayerState();
 		//Cases
 		switch (PickupType)
 		{
@@ -80,17 +104,33 @@ void APickup::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 		}
 		case EPickupType::Ammo:
 		{
+			switch (AmmoType)
+			{
+			case EAmmoType::Light:
+				PlayerState->LightAmmo += PickupValue;
+				break;
+			case EAmmoType::Medium:
+				PlayerState->MediumAmmo += PickupValue;
+				break;
+			case EAmmoType::Heavy:
+				PlayerState->HeavyAmmo += PickupValue;
+			}
 			break;
 		}
 		case EPickupType::Health:
 		{
+			PlayerState->Health += PickupValue;
 			break;
 		}
-
-
-
+		case EPickupType::Armour:
+		{
+			PlayerState->Armour += PickupValue;
+			break;
+		}
 		}
 
+		//Play sound
+		UGameplayStatics::PlaySound2D(GetWorld(), PickupSound);
 		//Delete self
 		this->Destroy();
 
