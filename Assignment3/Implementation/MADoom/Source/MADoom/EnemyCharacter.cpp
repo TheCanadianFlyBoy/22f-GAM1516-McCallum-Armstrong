@@ -8,6 +8,7 @@
 #include "Perception/PawnSensingComponent.h"
 #include "Components/AudioComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ArrowComponent.h"
 //References
 #include "PlayerCharacter.h"
 //Utilities
@@ -71,6 +72,9 @@ void AEnemyCharacter::OnShot(AActor* DamagedActor, float DamageAmount, const UDa
 void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//DEBUG
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 50, FColor::Purple, false, 1.f);
+
 
 	//Orient sprite
 	//Assumes single player
@@ -86,8 +90,9 @@ void AEnemyCharacter::Tick(float DeltaTime)
 			SpriteComponent->SetWorldRotation(SpriteDirection);
 			SpriteComponent->AddLocalRotation(FRotator(0, 90.f, 0));
 			//Set directional sprite
-			FRotator CharacterDirection = GetActorRotation();
-			FRotator PlayerDirection = Player->GetActorRotation();
+			FRotator CharacterDirection = GetControlRotation();
+			FRotator PlayerDirection = Player->GetActorForwardVector().Rotation();
+			FVector Fwd = GetActorForwardVector();
 			FRotator DeltaDirection = CharacterDirection - PlayerDirection;
 			//If dead
 			if (Health <= 0)
@@ -104,15 +109,15 @@ void AEnemyCharacter::Tick(float DeltaTime)
 				}
 			}
 			//Else, do directional stuff
-			else if (DeltaDirection.Yaw < 270 + 45 && DeltaDirection.Yaw > 270 - 45)
+			else if (fabsf(DeltaDirection.Yaw) <= 270 + 45 && fabsf(DeltaDirection.Yaw) >= 270 - 45)
 			{
 				SpriteComponent->SetFlipbook(WalkSprite_Left);
 			}
-			else if (DeltaDirection.Yaw < 90 + 45 && DeltaDirection.Yaw > 45)
+			else if (fabsf(DeltaDirection.Yaw) <= 90 + 45 && fabsf(DeltaDirection.Yaw) >= 45)
 			{
 				SpriteComponent->SetFlipbook(WalkSprite_Right);
 			}
-			else if (DeltaDirection.Yaw < 180 + 45 && DeltaDirection.Yaw > 180 - 45) {
+			else if (fabsf(DeltaDirection.Yaw) <= 180 + 45 && fabsf(DeltaDirection.Yaw) >= 180 - 45) {
 				SpriteComponent->SetFlipbook(WalkSprite_Forward);
 			}
 			else {

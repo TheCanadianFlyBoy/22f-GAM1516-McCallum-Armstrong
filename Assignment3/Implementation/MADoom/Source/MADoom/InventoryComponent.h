@@ -4,9 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Door.h"
 #include "InventoryComponent.generated.h"
 
+UENUM()
+enum class EKeyColour {
+	Blue,
+	Red,
+	Yellow
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -24,6 +29,7 @@ public:
 	//Add/pickup
 	void AddWeapon(AWeapon* Weapon);
 	void PickupWeapon(AWeapon* Weapon);
+	void AddKey(EKeyColour Key);
 	//Checkers
 	bool HasKey(EKeyColour Colour);
 	bool HasWeapon(const FName &WeaponName);

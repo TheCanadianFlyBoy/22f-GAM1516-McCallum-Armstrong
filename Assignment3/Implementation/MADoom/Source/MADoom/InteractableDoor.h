@@ -25,8 +25,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DOOM Door")
 		EKeyColour KeyColour;
 
-	bool bLocked;
-	bool bOpen;
+	UPROPERTY(EditAnywhere, Category = "DOOM Door")
+		bool bLocked;
+	UPROPERTY(EditAnywhere, Category = "DOOM Door")
+		bool bOpen;
 
 public:
 	virtual void OnInteract(APlayerCharacter* InstigatingCharacter) override;

@@ -35,6 +35,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "DOOM Player")
 		UPawnNoiseEmitterComponent* NoiseComponent;
 
+	UFUNCTION(BlueprintCallable)
+		class AWeapon* GetCurrentWeapon();
+
 	//Pointer to controller
 	APlayerController* MyController;
 	float WeaponSwayMax;

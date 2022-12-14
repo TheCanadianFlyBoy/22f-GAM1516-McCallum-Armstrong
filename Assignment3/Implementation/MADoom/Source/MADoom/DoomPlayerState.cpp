@@ -34,7 +34,7 @@ void ADoomPlayerState::OnDamage(float Damage)
 }
 
 
-float ADoomPlayerState::GetAmmo(EAmmoType& Type)
+float ADoomPlayerState::GetAmmo(EAmmoType Type)
 {
 	//TODO refactor to array?
 	switch (Type)
@@ -61,6 +61,21 @@ float ADoomPlayerState::GetArmour() {
 	return Armour;
 }
 
+float ADoomPlayerState::GetLightAmmo()
+{
+	return LightAmmo;
+}
+
+float ADoomPlayerState::GetMediumAmmo()
+{
+	return MediumAmmo;
+}
+
+float ADoomPlayerState::GetHeavyAmmo()
+{
+	return HeavyAmmo;
+}
+
 void ADoomPlayerState::LoadSaveState()
 {
 	//Cast
@@ -71,6 +86,38 @@ void ADoomPlayerState::LoadSaveState()
 bool ADoomPlayerState::IsDead()
 {
 	return (Health <= 0);
+}
+
+void ADoomPlayerState::UseAmmo(EAmmoType Type)
+{
+	switch (Type)
+	{
+	case EAmmoType::Light: 
+		LightAmmo--;
+		break;
+	case EAmmoType::Medium:
+		MediumAmmo--;
+		break;
+	case EAmmoType::Heavy:
+		HeavyAmmo--;
+		break;
+	}
+}
+
+void ADoomPlayerState::AddAmmo(EAmmoType Type, float Amount)
+{
+	switch (Type)
+	{
+	case EAmmoType::Light:
+		LightAmmo+=Amount;
+		break;
+	case EAmmoType::Medium:
+		MediumAmmo+=Amount;
+		break;
+	case EAmmoType::Heavy:
+		HeavyAmmo+=Amount;
+		break;
+	}
 }
 
 void ADoomPlayerState::BeginPlay()

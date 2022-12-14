@@ -6,12 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Door.generated.h"
 
-UENUM()
-	enum class EKeyColour {
-		Blue,
-		Red,
-		Yellow
-	};
+
 
 UCLASS()
 class MADOOM_API ADoor : public AActor

@@ -25,8 +25,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DOOM Stats")
 		float HeavyAmmo;
 
-	//UFUNCTION(BlueprintCallable)
-		float GetAmmo(EAmmoType& Type);
+	UFUNCTION(BlueprintCallable)
+		float GetAmmo(EAmmoType Type);
 
 
 	//Health/Armour
@@ -38,6 +38,12 @@ public:
 		float GetHealth();
 	UFUNCTION(BlueprintCallable)
 		float GetArmour();
+	UFUNCTION(BlueprintCallable)
+		float GetLightAmmo();
+	UFUNCTION(BlueprintCallable)
+		float GetMediumAmmo();
+	UFUNCTION(BlueprintCallable)
+		float GetHeavyAmmo();
 
 	
 	void LoadSaveState();
@@ -49,7 +55,11 @@ public:
 	void OnDamage(float Damage);
 	bool IsDead();
 
+	void UseAmmo(EAmmoType Type);
+	void AddAmmo(EAmmoType Type, float Amount);
+
 protected:
 	virtual void BeginPlay() override;
 
 };
+

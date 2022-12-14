@@ -11,7 +11,9 @@
 #include "PlayerCharacter.h"
 #include "Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "DoomPlayerState.h"
 //Utils
+#include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "DrawDebugHelpers.h"
@@ -43,31 +45,50 @@ AWeapon::AWeapon()
 
 }
 
+EAmmoType AWeapon::GetAmmoType()
+{
+	return AmmoType;
+}
+
 void AWeapon::Fire()
 {
-	//Play animation
-	SpriteComponent->Play();
-	AudioComponent->Play();
 
 	ACharacter* ActorOwner = Cast<ACharacter>(GetOwner());
 	ActorOwner->MakeNoise(1.0, ActorOwner, GetActorLocation());
+	ADoomPlayerState* State = dynamic_cast<ADoomPlayerState*>(ActorOwner->GetPlayerState());
 
-	//Projectile Spawn
-	if (ProjectileTemplate)
+	
+	//Ammo check
+	if (State && State->GetAmmo(AmmoType) < 1)
 	{
-		SpawnProjectile();
+		AudioComponent->SetSound(DrySound);
 	}
-	else //Line Trace
-	{
-		//Generate hit
-		AActor* hit = GetPickableActor_LineTraceSingleByChannel(ECollisionChannel::ECC_Pawn);
-		//On hit
-		if (hit && hit->ActorHasTag("CanDamage"))
+	else {
+		//Utilize ammo
+		State->UseAmmo(AmmoType);
+		AudioComponent->SetSound(FireSound);
+
+		//Projectile Spawn
+		if (ProjectileTemplate)
 		{
-			//Take damage
-			hit->TakeDamage(Damage, FDamageEvent(), GetInstigatorController(), GetOwner());
+			SpawnProjectile();
 		}
+		else //Line Trace
+		{
+			//Generate hit
+			AActor* hit = GetPickableActor_LineTraceSingleByChannel(ECollisionChannel::ECC_Pawn);
+			//On hit
+			if (hit && hit->ActorHasTag("CanDamage"))
+			{
+				//Take damage
+				hit->TakeDamage(Damage, FDamageEvent(), GetInstigatorController(), GetOwner());
+			}
+		}
+	
 	}
+	//Play animation
+	SpriteComponent->Play();
+	AudioComponent->Play();
 
 }
 
@@ -80,6 +101,7 @@ void AWeapon::BeginPlay()
 
 void AWeapon::BeginFireTimer()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "FIRE");
 	//If timer is not active, start it, and begin firing procedure
 	if (!GetWorldTimerManager().IsTimerActive(WeaponTimerHandle))
 	{

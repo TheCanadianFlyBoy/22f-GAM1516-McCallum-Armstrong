@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "PlayerCharacter.h"
 #include "Weapon.h"
+#include "InventoryComponent.h"
 #include "Pickup.generated.h"
 
 UENUM()
@@ -13,7 +14,8 @@ enum class EPickupType {
 	Weapon,
 	Ammo,
 	Health,
-	Armour
+	Armour,
+	Key
 };
 
 UCLASS()
@@ -44,6 +46,8 @@ public:
 		TSubclassOf<class AWeapon> WeaponTemplate;
 	UPROPERTY(EditAnywhere, Category = "DOOM")
 		float PickupValue;
+	UPROPERTY(EditAnywhere, Category = "DOOM")
+		EKeyColour KeyColour;
 
 protected:
 	// Called when the game starts or when spawned

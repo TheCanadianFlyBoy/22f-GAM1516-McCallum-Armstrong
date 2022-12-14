@@ -40,7 +40,7 @@ void AEnemyController::Tick(float DeltaTime)
 			//Alert state
 			case EAIState::Alert: {
 				
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "ALERT");
+				//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "ALERT");
 				if (!GetWorldTimerManager().IsTimerActive(SensoryTimerHandle))
 				{
 					GetWorldTimerManager().SetTimer(SensoryTimerHandle, this, &AEnemyController::PawnAlertTimeOut, 5.f);
@@ -50,7 +50,7 @@ void AEnemyController::Tick(float DeltaTime)
 			//Attacking state
 			case EAIState::Attacking:{
 				//DEBUG
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "ATTACKING");
+				//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "ATTACKING");
 				//Fire
 				if (!GetWorldTimerManager().IsTimerActive(AttackTimerHandle))
 				{
@@ -167,7 +167,7 @@ void AEnemyController::MoveToNextPatrolPoint()
 	//Nav handling
 	//Get remaining distance
 	float DistanceToNextPoint = (MyCharacter->GetActorLocation() - CurrentPatrolPoint->GetActorLocation()).Size();
-	if (DistanceToNextPoint < 100.f)
+	if (DistanceToNextPoint < 200.f)
 	{
 		//Null catch
 		if (CurrentPatrolPoint == nullptr)
@@ -194,5 +194,7 @@ void AEnemyController::MoveToNextPatrolPoint()
 	}
 	//WEEK 10
 	//CALL UAIBlueprintHelperLibrary::SimpleMoveToActor() passing in pController, CurrentPatrolPoint
-		UAIBlueprintHelperLibrary::SimpleMoveToActor(this, CurrentPatrolPoint);
+		//UAIBlueprintHelperLibrary::SimpleMoveToActor(this, CurrentPatrolPoint);
+		MoveToLocation(CurrentPatrolPoint->GetActorLocation(), 10.f, true, true, true, true);
+		
 }

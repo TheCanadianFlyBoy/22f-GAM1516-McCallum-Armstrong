@@ -35,6 +35,7 @@ APickup::APickup()
 	//Create sprite
 	SpriteComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("Sprite"));
 	SpriteComponent->SetupAttachment(RootComponent);
+	SpriteComponent->SetRelativeScale3D(FVector(3, 3, 3));
 
 
 }
@@ -97,10 +98,8 @@ void APickup::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 				AWeapon* NewWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponTemplate, SpawnTransform, SpawnParams);
 				Player->InventoryComponent->AddWeapon(NewWeapon);
 				//Unequip weapon and equip new weapon
-				
-				
 			}
-			break;
+			//Skip break so ammo is always given
 		}
 		case EPickupType::Ammo:
 		{
@@ -127,6 +126,12 @@ void APickup::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 			PlayerState->Armour += PickupValue;
 			break;
 		}
+		case EPickupType::Key:
+			if (!Player->InventoryComponent->HasKey(KeyColour))
+			{
+				Player->InventoryComponent->AddKey(KeyColour);
+			}
+			break;
 		}
 
 		//Play sound

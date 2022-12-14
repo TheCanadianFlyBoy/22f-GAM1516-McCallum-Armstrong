@@ -42,8 +42,13 @@ public:
 		class UAudioComponent* AudioComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DOOM Sound")
 		class USoundBase* FireSound;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DOOM Sound")
+		class USoundBase* DrySound;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DOOM Sound");
 		UPawnNoiseEmitterComponent* NoiseEmitter;
+
+	UFUNCTION(BlueprintCallable)
+		EAmmoType GetAmmoType();
 
 	//Allows for overriding of fire (future enemy implementation?)
 	virtual void Fire();

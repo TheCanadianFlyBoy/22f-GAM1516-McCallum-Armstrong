@@ -53,6 +53,11 @@ APlayerCharacter::APlayerCharacter()
 
 }
 
+AWeapon* APlayerCharacter::GetCurrentWeapon()
+{
+	return InventoryComponent->GetCurrentWeapon();
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
@@ -62,6 +67,8 @@ void APlayerCharacter::BeginPlay()
 	if (DefaultWeapon)
 	{
 		InventoryComponent->AddWeapon((AWeapon*)GetWorld()->SpawnActor(DefaultWeapon));
+		ADoomPlayerState* State = Cast<ADoomPlayerState>(GetPlayerState());
+		State->AddAmmo(EAmmoType::Light, 15.f);	//TODO, make variable
 	}
 }
 

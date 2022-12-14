@@ -50,6 +50,11 @@ void UInventoryComponent::PickupWeapon(AWeapon* Weapon)
 	AddWeapon(Weapon);
 }
 
+void UInventoryComponent::AddKey(EKeyColour Key)
+{
+	Keys.Add(Key);
+}
+
 bool UInventoryComponent::HasWeapon(const FName &SearchName)
 {
 	//Iterate
@@ -66,7 +71,7 @@ bool UInventoryComponent::HasWeapon(const FName &SearchName)
 
 bool UInventoryComponent::HasKey(EKeyColour Colour)
 {
-	if (Keys.Find(Colour)) return true;
+	if (Keys.Contains(Colour)) return true;
 	return false;
 }
 
