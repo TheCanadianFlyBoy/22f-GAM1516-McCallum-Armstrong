@@ -12,6 +12,9 @@
 //References
 #include "Weapon.h"
 #include "DoomPlayerState.h"
+#include "Interactable.h"
+//Utils
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -98,7 +101,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	//Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
@@ -136,7 +139,14 @@ void APlayerCharacter::PreviousWeapon()
 
 void APlayerCharacter::Interact()
 {
-	//TODO
+	//Fire a ray
+	AActor* Actor = GetPickableActor_LineTraceSingleByChannel(ECollisionChannel::ECC_WorldDynamic);
+	if (Actor && Actor->ActorHasTag("Interactable"))
+	{
+		AInteractable* Interactable = (AInteractable*)Actor;
+		Interactable->OnInteract(this);
+	}
+
 }
 
 void APlayerCharacter::BeginFire()
@@ -173,4 +183,28 @@ void APlayerCharacter::Die()
 	//Empty tags
 	Tags.Empty();
 	GetCharacterMovement()->SetActive(false);
+}
+
+AActor* APlayerCharacter::GetPickableActor_LineTraceSingleByChannel(ECollisionChannel CollisionChannel)
+{
+	
+	FVector StartTrace = GetActorLocation(); // trace start is the camera location
+	FVector Direction = CameraComponent->GetForwardVector();
+	FVector EndTrace = StartTrace + Direction * 300.f; // and trace end is the camera location + an offset in the direction you are looking, the 300 is the distance at which it checks
+
+	//Setup parameters
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(this);	//Ignore weapon
+	TraceParams.AddIgnoredActor(this->GetOwner()); //Ignore weapon owner
+	TraceParams.bTraceComplex = true;	//Complex collision
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	FHitResult Hit(ForceInit);
+	UWorld* World = GetWorld();
+	World->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, CollisionChannel, TraceParams); // simple trace function  ECC_PhysicsBody
+	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Yellow, false, 1, 0, 5.f);
+	return Hit.GetActor();
+	
+
+	return nullptr;
 }

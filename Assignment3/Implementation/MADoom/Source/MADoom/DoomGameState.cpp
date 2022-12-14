@@ -3,3 +3,15 @@
 
 #include "DoomGameState.h"
 
+void ADoomGameState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Set to false
+	bLevelComplete = false;
+}
+
+bool ADoomGameState::IsLevelComplete()
+{
+	return bLevelComplete;
+}

@@ -72,5 +72,6 @@ private: //Internal variables
 	float WeaponSway;
 	bool WeaponSwayToggle;
 
+	AActor* GetPickableActor_LineTraceSingleByChannel(ECollisionChannel CollisionChannel);
 
 };

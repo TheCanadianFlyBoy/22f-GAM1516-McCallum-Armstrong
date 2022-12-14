@@ -22,6 +22,7 @@ void ADoomPlayerController::OnPossess(APawn* aPawn)
     InputComponent->BindAxis("MoveForward", MyPawn, &APlayerCharacter::MoveForward);
     //Bind movement/manipualtion actions
     InputComponent->BindAction("Jump",EInputEvent::IE_Pressed, MyPawn, &APlayerCharacter::Jump); 
+    InputComponent->BindAction("Interact", EInputEvent::IE_Pressed, MyPawn, &APlayerCharacter::Interact);
 
     //Bind inventory actions
     InputComponent->BindAction("NextWeapon", EInputEvent::IE_Released, MyPawn, &APlayerCharacter::NextWeapon);
@@ -45,6 +46,11 @@ void ADoomPlayerController::OnUnPossess()
 void ADoomPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
+}
+
+void ADoomPlayerController::BeginPlay()
+{
+    Super::BeginPlay();
 }
 
 void ADoomPlayerController::Exit()

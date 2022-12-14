@@ -8,6 +8,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "ExplosiveComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
@@ -34,13 +35,11 @@ AExplosiveBarrel::AExplosiveBarrel()
 	CapsuleComponent->BodyInstance.bLockYRotation = true;
 	CapsuleComponent->BodyInstance.bLockZRotation = true;
 	SetRootComponent(CapsuleComponent);
-
-
-	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Damage Sphere"));
-	SphereComponent->SetSphereRadius(DamageRadius);	//Create radius
-	SphereComponent->SetupAttachment(CapsuleComponent);
-
-	//Creat sprite
+	//Create explosive
+	ExplosiveComponent = CreateDefaultSubobject<UExplosiveComponent>(TEXT("Explosive Component"));
+	ExplosiveComponent->ExplosionRadius->SetSphereRadius(DamageRadius);
+	ExplosiveComponent->SetupAttachment(RootComponent);
+	//Create sprite
 	SpriteComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("Sprite"));
 	SpriteComponent->Stop();
 	SpriteComponent->SetLooping(false);
@@ -52,8 +51,6 @@ AExplosiveBarrel::AExplosiveBarrel()
 
 	//Subscribe to damage
 	this->OnTakeAnyDamage.AddDynamic(this, &AExplosiveBarrel::OnShot);
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &AExplosiveBarrel::OnBeginOverlap);
-	SphereComponent->OnComponentEndOverlap.AddDynamic(this, &AExplosiveBarrel::OnEndOverlap);
 
 }
 
@@ -68,10 +65,7 @@ void AExplosiveBarrel::Explode()
 		//Set end in progress
 		GetWorldTimerManager().SetTimer(ExplosionTimerHandle, this, &AExplosiveBarrel::EndExplode, SpriteComponent->GetFlipbookLength(), true);
 
-		for (AActor* Actor : ActorsInRadius)
-		{
-			Actor->TakeDamage(Damage, FDamageEvent(), nullptr, this);
-		}
+		ExplosiveComponent->Explode(Damage, 1000.f);
 
 	}
 }
@@ -129,27 +123,4 @@ void AExplosiveBarrel::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-}
-
-
-void AExplosiveBarrel::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor->ActorHasTag("CanDamage"))
-	{
-		if (!ActorsInRadius.Contains(OtherActor))
-		{
-			ActorsInRadius.Add(OtherActor);
-		}
-	}
-}
-
-void AExplosiveBarrel::OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (OtherActor->ActorHasTag("CanDamage"))
-	{
-		if (!ActorsInRadius.Contains(OtherActor))
-		{
-			ActorsInRadius.Remove(OtherActor);
-		}
-	}
 }

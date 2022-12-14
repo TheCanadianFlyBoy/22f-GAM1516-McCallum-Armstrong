@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Projectile.h"
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
@@ -33,7 +34,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DOOM Weapon Stats")
 		 EAmmoType AmmoType;
 	UPROPERTY(EditAnywhere, Category = "DOOM Weapon Stats")
-		class AProjectile* ProjectileTemplate;
+		TSubclassOf<AProjectile> ProjectileTemplate;
 	UPROPERTY(EditAnywhere, Category = "DOOM Weapon Stats")
 		FName WeaponName;
 	//Sound
@@ -78,5 +79,7 @@ private:
 	//Setup ray trace
 	void SetupRay(FVector& StartTrace, FVector& Direction, FVector& EndTrace);
 	void SetupTraceParams(FCollisionQueryParams& TraceParams);
+	//Spawn projectile
+	void SpawnProjectile();
 
 };

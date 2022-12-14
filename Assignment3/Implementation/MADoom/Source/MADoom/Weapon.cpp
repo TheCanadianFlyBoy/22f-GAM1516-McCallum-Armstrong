@@ -9,6 +9,8 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 //References
 #include "PlayerCharacter.h"
+#include "Projectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 //Utils
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -53,7 +55,7 @@ void AWeapon::Fire()
 	//Projectile Spawn
 	if (ProjectileTemplate)
 	{
-		//TODO
+		SpawnProjectile();
 	}
 	else //Line Trace
 	{
@@ -260,4 +262,20 @@ void AWeapon::SetupTraceParams(FCollisionQueryParams& TraceParams)
 	TraceParams.AddIgnoredActor(this->GetOwner()); //Ignore weapon owner
 	TraceParams.bTraceComplex = true;	//Complex collision
 	TraceParams.bReturnPhysicalMaterial = true;
+}
+
+
+void AWeapon::SpawnProjectile()
+{
+	//Parameters
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	FVector SpawnLocation = GetActorLocation() + GetActorForwardVector();
+	FTransform SpawnTransform = FTransform((GetActorRightVector()).Rotation(), SpawnLocation);
+
+	AProjectile* NewProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileTemplate, SpawnTransform, SpawnParams);
+	NewProjectile->ProjectileComponent->Velocity = -GetActorRightVector();
+
 }

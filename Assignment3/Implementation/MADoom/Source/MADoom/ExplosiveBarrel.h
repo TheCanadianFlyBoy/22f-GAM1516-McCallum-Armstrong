@@ -15,20 +15,18 @@ public:
 	// Sets default values for this pawn's properties
 	AExplosiveBarrel();
 
-	//Sprite
-	UPROPERTY(VisibleAnywhere, Category = "DOOM Sprite")
+	//Components
+	UPROPERTY(VisibleAnywhere, Category = "DOOM Component")
 		class UCapsuleComponent* CapsuleComponent;
-	UPROPERTY(EditAnywhere, Category = "DOOM Sprite")
+	UPROPERTY(EditAnywhere, Category = "DOOM Component")
 		class UPaperFlipbookComponent* SpriteComponent;
-	UPROPERTY(VisibleAnywhere, Category = "DOOM Sprite")
-		class USphereComponent* SphereComponent;
+	UPROPERTY(VisibleAnywhere, Category = "DOOM Component")
+		class UExplosiveComponent* ExplosiveComponent;
 	//Stats
 	UPROPERTY(EditAnywhere, Category = "DOOM Stats")
 		float Damage;
 	UPROPERTY(EditAnywhere, Category = "DOOM Stats")
 		float DamageRadius;
-	UPROPERTY(VisibleAnywhere, Category = "Doom Stats")
-		TArray<AActor*> ActorsInRadius;
 	//Sound
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DOOM Sound")
 		class UAudioComponent* AudioComponent;
@@ -48,10 +46,7 @@ protected:
 		void OnShot(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageInstigator);
 
 	FTimerHandle ExplosionTimerHandle;
-	UFUNCTION()
-		void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void OnEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

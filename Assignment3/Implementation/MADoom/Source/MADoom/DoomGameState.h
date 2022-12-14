@@ -13,5 +13,12 @@ UCLASS()
 class MADOOM_API ADoomGameState : public AGameStateBase
 {
 	GENERATED_BODY()
-	
+public:
+	bool bLevelComplete;
+
+	UFUNCTION(BlueprintCallable)
+		bool IsLevelComplete();
+
+protected:
+	virtual void BeginPlay() override;
 };
