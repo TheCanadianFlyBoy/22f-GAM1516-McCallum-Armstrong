@@ -14,7 +14,12 @@ class MADOOM_API ADoomGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 public:
+	ADoomGameState();
+
 	bool bLevelComplete;
+
+	UPROPERTY(VisibleAnywhere, Category = "DOOM Music")
+		class UBackgroundMusicComponent* MusicComponent;
 
 	UFUNCTION(BlueprintCallable)
 		bool IsLevelComplete();

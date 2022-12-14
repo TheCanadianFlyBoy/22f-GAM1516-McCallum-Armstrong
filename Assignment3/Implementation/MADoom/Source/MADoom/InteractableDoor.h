@@ -20,6 +20,8 @@ public:
 	AInteractableDoor();
 	UPROPERTY(VisibleAnywhere, Category = "DOOM Component")
 		class USceneComponent* DoorRoot;
+	UPROPERTY(VisibleAnywhere, Category = "DOOM Component")
+		class UBoxComponent* BoxCollider;
 	UPROPERTY(EditAnywhere, Category = "DOOM Component")
 		class UStaticMeshComponent* MeshComponent;
 	UPROPERTY(EditAnywhere, Category = "DOOM Door")

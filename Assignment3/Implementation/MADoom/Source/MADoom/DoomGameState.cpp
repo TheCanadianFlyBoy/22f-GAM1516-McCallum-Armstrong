@@ -2,6 +2,7 @@
 
 
 #include "DoomGameState.h"
+#include "BackgroundMusicComponent.h"
 
 void ADoomGameState::BeginPlay()
 {
@@ -9,6 +10,13 @@ void ADoomGameState::BeginPlay()
 
 	//Set to false
 	bLevelComplete = false;
+	//Play music
+	MusicComponent->Play();
+}
+
+ADoomGameState::ADoomGameState() : Super()
+{
+	MusicComponent = CreateDefaultSubobject<UBackgroundMusicComponent>(TEXT("Music Component"));
 }
 
 bool ADoomGameState::IsLevelComplete()

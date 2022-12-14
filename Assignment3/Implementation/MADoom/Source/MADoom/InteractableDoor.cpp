@@ -18,8 +18,14 @@ AInteractableDoor::AInteractableDoor() : Super()
 	//Create mesh component
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
 	MeshComponent->SetupAttachment(RootComponent);;
-	MeshComponent->SetCollisionProfileName("BlockAll");
+	MeshComponent->SetCollisionProfileName("BlockAllDynamic");
 	MeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+
+	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision Box"));
+	BoxCollider->SetBoxExtent(FVector(100, 25, 150));
+	BoxCollider->SetCollisionProfileName("BlockAllDynamic");
+	BoxCollider->SetupAttachment(MeshComponent);
+
 }
 
 void AInteractableDoor::OnInteract(APlayerCharacter* InstigatingCharacter)
