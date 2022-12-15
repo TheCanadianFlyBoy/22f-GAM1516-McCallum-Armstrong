@@ -71,6 +71,9 @@ protected:
 	UFUNCTION()
 		virtual void OnShot(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageInstigator);
 
+	FVector SpawnLocation;
+	EAIState SpawnState;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -88,5 +91,7 @@ public:
 	AActor* GetPickableActor_LineTraceSingleByChannel(ECollisionChannel Channel);
 	void SetupRay(FVector& StartTrace, FVector& Direction, FVector& EndTrace);
 	void SetupTraceParams(FCollisionQueryParams& TraceParams);
-
+	//Reload
+	UFUNCTION()
+		void ReloadCharacter();
 };

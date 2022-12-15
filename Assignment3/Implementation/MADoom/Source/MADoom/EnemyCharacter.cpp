@@ -56,6 +56,10 @@ void AEnemyCharacter::BeginPlay()
 	Health = MaxHealth;
 	//Set speed
 	GetCharacterMovement()->MaxWalkSpeed = 500.f * MaxSpeed;
+
+	//Set reload params
+	SpawnLocation = GetActorLocation();
+	SpawnState = CurrentAIState;
 }
 
 //On being shot
@@ -222,5 +226,13 @@ void AEnemyCharacter::SetupTraceParams(FCollisionQueryParams& TraceParams)
 	TraceParams.AddIgnoredActor(this->GetOwner()); //Ignore weapon owner
 	TraceParams.bTraceComplex = true;	//Complex collision
 	TraceParams.bReturnPhysicalMaterial = true;
+}
+
+void AEnemyCharacter::ReloadCharacter()
+{
+	if (Health > 0) {
+		CurrentAIState = SpawnState;
+		SetActorLocation(SpawnLocation);
+	}
 }
 

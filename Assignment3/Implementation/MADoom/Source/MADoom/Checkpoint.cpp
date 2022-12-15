@@ -9,6 +9,9 @@
 #include "PlayerCharacter.h"
 #include "DoomPlayerState.h"
 #include "InventoryComponent.h"
+#include "EnemyCharacter.h"
+//Utils
+#include "EngineUtils.h"
 
 // Sets default values
 ACheckpoint::ACheckpoint()
@@ -71,7 +74,13 @@ void ACheckpoint::LoadSaveState(APlayerCharacter* Player)
 	State->HeavyAmmo = SavedParams.HeavyAmmo;
 	//Teleport player
 	Player->SetActorLocation(SavedParams.Location);
-	
+
+	//Move enemies
+
+	for (TActorIterator<AEnemyCharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		ActorItr->ReloadCharacter();
+	}
 
 }
 
