@@ -98,6 +98,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 			FRotator PlayerDirection = Player->GetActorForwardVector().Rotation();
 			FVector Fwd = GetActorForwardVector();
 			FRotator DeltaDirection = CharacterDirection - PlayerDirection;
+			float DeltaAngle = fabsf(CharacterDirection.Yaw) - fabsf(PlayerDirection.Yaw);
 			//If dead
 			if (Health <= 0)
 			{
@@ -119,6 +120,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 			}
 			else if (fabsf(DeltaDirection.Yaw) <= 90 + 45 && fabsf(DeltaDirection.Yaw) >= 45)
 			{
+				GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2, FColor::Green, FString::SanitizeFloat((fabsf(DeltaDirection.Yaw))));
 				SpriteComponent->SetFlipbook(WalkSprite_Right);
 			}
 			else if (fabsf(DeltaDirection.Yaw) <= 180 + 45 && fabsf(DeltaDirection.Yaw) >= 180 - 45) {
