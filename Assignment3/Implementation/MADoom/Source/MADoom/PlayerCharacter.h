@@ -16,8 +16,6 @@ public:
 	APlayerCharacter();
 	
 	//Player Stats
-	UPROPERTY(EditAnywhere, Category = "DOOM Character")
-		float Health = 100.f;
 	UPROPERTY(VisibleAnywhere, Category = "DOOM Character")
 		float MaxSpeed;
 	UPROPERTY(VisibleAnywhere, Category = "DOOM Chararcter")
@@ -40,7 +38,6 @@ public:
 
 	//Pointer to controller
 	APlayerController* MyController;
-	float WeaponSwayMax;
 
 
 protected:
@@ -72,8 +69,6 @@ public:
 	void Die();
 
 private: //Internal variables
-	float WeaponSway;
-	bool WeaponSwayToggle;
 
 	AActor* GetPickableActor_LineTraceSingleByChannel(ECollisionChannel CollisionChannel);
 

@@ -91,17 +91,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//Weapon sway
-	FVector WeaponOrigin = FVector(25, 0, -10.f);
-	FVector WeaponCurrent = WeaponSocket->GetRelativeLocation();
-	FVector WeaponDelta = WeaponCurrent - WeaponOrigin;
-
-	//Get rotation
-	FRotator WeaponSwayRotator = WeaponDelta.ToOrientationRotator();
-	//Toggle direction
-	WeaponSwayToggle = fabsf(WeaponSwayRotator.Yaw) > 90 ? !WeaponSwayToggle : WeaponSwayToggle;
-	WeaponSway = WeaponSwayToggle ? WeaponSway + DeltaTime : WeaponSway - DeltaTime;
-
 
 }
 
@@ -146,31 +135,39 @@ void APlayerCharacter::PreviousWeapon()
 
 void APlayerCharacter::Interact()
 {
-	//Fire a ray
-	AActor* Actor = GetPickableActor_LineTraceSingleByChannel(ECollisionChannel::ECC_WorldDynamic);
-	if (Actor && Actor->ActorHasTag("Interactable"))
-	{
-		AInteractable* Interactable = (AInteractable*)Actor;
-		Interactable->OnInteract(this);
+	//Ensure alive
+	ADoomPlayerState* MyState = (ADoomPlayerState*)GetPlayerState();
+	if (MyState->Health > 0) {
+		//Fire a ray
+		AActor* Actor = GetPickableActor_LineTraceSingleByChannel(ECollisionChannel::ECC_WorldDynamic);
+		if (Actor && Actor->ActorHasTag("Interactable"))
+		{
+			AInteractable* Interactable = (AInteractable*)Actor;
+			Interactable->OnInteract(this);
+		}
 	}
 
 }
 
 void APlayerCharacter::BeginFire()
 {
-	//Get weapon
-	AWeapon* CurrentWeapon = InventoryComponent->GetCurrentWeapon(); //TODO remove and add to persistent variable
-	//Null check
-	if (CurrentWeapon)
-	{
-		CurrentWeapon->BeginFireTimer();
+	//Ensure alive
+	ADoomPlayerState* MyState = (ADoomPlayerState*)GetPlayerState();
+	if (MyState->Health > 0) {
+		//Get weapon
+		AWeapon* CurrentWeapon = InventoryComponent->GetCurrentWeapon(); 
+		//Null check
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->BeginFireTimer();
+		}
 	}
 }
 
 void APlayerCharacter::EndFire()
 {
 	//Get weapon
-	AWeapon* CurrentWeapon = InventoryComponent->GetCurrentWeapon(); //TODO ^
+	AWeapon* CurrentWeapon = InventoryComponent->GetCurrentWeapon();
 	//Null check
 	if (CurrentWeapon)
 	{
@@ -209,7 +206,7 @@ AActor* APlayerCharacter::GetPickableActor_LineTraceSingleByChannel(ECollisionCh
 	FHitResult Hit(ForceInit);
 	UWorld* World = GetWorld();
 	World->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, CollisionChannel, TraceParams); // simple trace function  ECC_PhysicsBody
-	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Yellow, false, 1, 0, 5.f);
+	//DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Yellow, false, 1, 0, 5.f);
 	return Hit.GetActor();
 	
 

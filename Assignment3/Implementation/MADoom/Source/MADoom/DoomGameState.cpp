@@ -3,6 +3,7 @@
 
 #include "DoomGameState.h"
 #include "BackgroundMusicComponent.h"
+#include "Components/AudioComponent.h"
 
 void ADoomGameState::BeginPlay()
 {
@@ -22,4 +23,10 @@ ADoomGameState::ADoomGameState() : Super()
 bool ADoomGameState::IsLevelComplete()
 {
 	return bLevelComplete;
+}
+
+void ADoomGameState::CompleteLevel()
+{
+	bLevelComplete = true;
+	MusicComponent->Victory();
 }

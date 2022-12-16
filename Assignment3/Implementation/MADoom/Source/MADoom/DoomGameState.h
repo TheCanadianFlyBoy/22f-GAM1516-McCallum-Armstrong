@@ -24,6 +24,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool IsLevelComplete();
 
+	void CompleteLevel();
+
 protected:
 	virtual void BeginPlay() override;
 };

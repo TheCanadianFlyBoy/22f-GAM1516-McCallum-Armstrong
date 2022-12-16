@@ -6,6 +6,7 @@
 #include "InventoryComponent.h"
 #include "Camera/CameraComponent.h"
 #include "DoomPlayerState.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void ADoomPlayerController::OnPossess(APawn* aPawn)
 {
@@ -28,14 +29,14 @@ void ADoomPlayerController::OnPossess(APawn* aPawn)
         //Bind movement/manipualtion actions
         InputComponent->BindAction("Jump", EInputEvent::IE_Pressed, MyPawn, &APlayerCharacter::Jump);
         InputComponent->BindAction("Interact", EInputEvent::IE_Pressed, MyPawn, &APlayerCharacter::Interact);
-
         //Bind inventory actions
         InputComponent->BindAction("NextWeapon", EInputEvent::IE_Released, MyPawn, &APlayerCharacter::NextWeapon);
         InputComponent->BindAction("PreviousWeapon", EInputEvent::IE_Released, MyPawn, &APlayerCharacter::PreviousWeapon);
-
         //Bind weapon actions
         InputComponent->BindAction("PrimaryFire", EInputEvent::IE_Pressed, MyPawn, &APlayerCharacter::BeginFire); //TODO - remove gun "jamming"
         InputComponent->BindAction("PrimaryFire", EInputEvent::IE_Released, MyPawn, &APlayerCharacter::EndFire);
+        //Bind exit
+        InputComponent->BindAction("Exit", EInputEvent::IE_Released, this, &ADoomPlayerController::Exit);
     }
 }
 
@@ -58,6 +59,7 @@ void ADoomPlayerController::BeginPlay()
 
 void ADoomPlayerController::Exit()
 {
+    UKismetSystemLibrary::QuitGame(this, this, EQuitPreference::Quit, false);
 }
 
 void ADoomPlayerController::LookUp(float Value)

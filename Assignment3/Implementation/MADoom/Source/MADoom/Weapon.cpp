@@ -35,9 +35,6 @@ AWeapon::AWeapon()
 	AudioComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 	AudioComponent->SetupAttachment(RootComponent);
 	AudioComponent->Sound = FireSound;
-	//Noise component
-	NoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("Noise Emitter"));
-	NoiseEmitter->bAutoActivate = true;
 
 	//Set fire
 	bCanFire = true; //TODO remove
@@ -101,7 +98,7 @@ void AWeapon::BeginPlay()
 
 void AWeapon::BeginFireTimer()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "FIRE");
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, "FIRE");
 	//If timer is not active, start it, and begin firing procedure
 	if (!GetWorldTimerManager().IsTimerActive(WeaponTimerHandle))
 	{

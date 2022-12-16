@@ -41,6 +41,11 @@ void UBackgroundMusicComponent::TransitionMusic(USoundBase* Song)
 	}
 }
 
+void UBackgroundMusicComponent::Victory()
+{
+	TransitionMusic(DefaultVictoryMusic);
+}
+
 // Called when the game starts
 void UBackgroundMusicComponent::BeginPlay()
 {

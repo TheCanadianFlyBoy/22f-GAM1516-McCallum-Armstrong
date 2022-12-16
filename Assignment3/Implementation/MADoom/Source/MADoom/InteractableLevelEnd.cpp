@@ -21,6 +21,6 @@ void AInteractableLevelEnd::OnInteract(class APlayerCharacter* InstigatorCharact
 	ADoomGameState* GameState = dynamic_cast<ADoomGameState*>(GetWorld()->GetGameState());
 	if (GameState)
 	{
-		GameState->bLevelComplete = true;
+		GameState->CompleteLevel();
 	}
 }

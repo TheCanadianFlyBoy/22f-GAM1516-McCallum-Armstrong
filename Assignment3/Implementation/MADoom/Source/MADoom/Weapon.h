@@ -44,8 +44,6 @@ public:
 		class USoundBase* FireSound;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DOOM Sound")
 		class USoundBase* DrySound;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DOOM Sound");
-		UPawnNoiseEmitterComponent* NoiseEmitter;
 
 	UFUNCTION(BlueprintCallable)
 		EAmmoType GetAmmoType();

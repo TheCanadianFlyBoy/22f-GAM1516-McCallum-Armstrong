@@ -119,11 +119,13 @@ void APickup::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 		case EPickupType::Health:
 		{
 			PlayerState->Health += PickupValue;
+			PlayerState->Health > 100 ? PlayerState->Health = 100 : PlayerState->Health = PlayerState->Health;
 			break;
 		}
 		case EPickupType::Armour:
 		{
 			PlayerState->Armour += PickupValue;
+			PlayerState->Armour > 100 ? PlayerState->Armour = 100 : PlayerState->Armour = PlayerState->Armour;
 			break;
 		}
 		case EPickupType::Key:

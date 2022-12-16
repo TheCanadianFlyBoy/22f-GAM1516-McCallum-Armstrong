@@ -26,6 +26,7 @@ public:
 	virtual void OnPossess(APawn* aPawn);
 	virtual void OnUnPossess();
 	virtual void OnDeath();
+	virtual void ReloadController();
 
 protected:
 	virtual void SetupInputComponent();
@@ -35,7 +36,6 @@ protected:
 
 	//Nav System
 	class UNavigationSystemV1* NavArea;
-	FVector RandomLocation;
 	// The current point the actor is either moving to or standing at
 	AActor* CurrentPatrolPoint;
 	//Patrol point index
@@ -61,5 +61,6 @@ protected:
 
 	//Pointer to enemy character
 	class AEnemyCharacter* MyCharacter;
+	FVector RandomLocation;
 	
 };

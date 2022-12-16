@@ -103,6 +103,12 @@ void AEnemyController::OnDeath()
 	this->Destroy();
 }
 
+void AEnemyController::ReloadController()
+{
+	GetWorldTimerManager().ClearTimer(AttackTimerHandle);
+	GetWorldTimerManager().ClearTimer(SensoryTimerHandle);
+}
+
 void AEnemyController::SetupInputComponent()
 {
 	

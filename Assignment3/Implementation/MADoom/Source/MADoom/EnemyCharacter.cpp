@@ -77,7 +77,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//DEBUG
-	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 50, FColor::Purple, false, 1.f);
+	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 50, FColor::Purple, false, 1.f);
 
 
 	//Orient sprite
@@ -120,7 +120,7 @@ void AEnemyCharacter::Tick(float DeltaTime)
 			}
 			else if (fabsf(DeltaDirection.Yaw) <= 90 + 45 && fabsf(DeltaDirection.Yaw) >= 45)
 			{
-				GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2, FColor::Green, FString::SanitizeFloat((fabsf(DeltaDirection.Yaw))));
+				//GEngine->AddOnScreenDebugMessage(INDEX_NONE, 2, FColor::Green, FString::SanitizeFloat((fabsf(DeltaDirection.Yaw))));
 				SpriteComponent->SetFlipbook(WalkSprite_Right);
 			}
 			else if (fabsf(DeltaDirection.Yaw) <= 180 + 45 && fabsf(DeltaDirection.Yaw) >= 180 - 45) {
@@ -235,6 +235,7 @@ void AEnemyCharacter::ReloadCharacter()
 	if (Health > 0) {
 		CurrentAIState = SpawnState;
 		SetActorLocation(SpawnLocation);
+		MyController->ReloadController();
 	}
 }
 

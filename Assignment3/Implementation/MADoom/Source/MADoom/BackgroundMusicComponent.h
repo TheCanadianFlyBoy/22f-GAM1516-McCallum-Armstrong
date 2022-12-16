@@ -28,6 +28,7 @@ public:
 
 	virtual void Play();
 	void TransitionMusic(USoundBase* Song);
+	virtual void Victory();
 
 protected:
 	// Called when the game starts
